@@ -9,18 +9,22 @@ import torch
 from tqdm import tqdm
 
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
 
 def read_split_data(root: str, val_rate: float = 0.2):
-    random.seed(0)  # 保证随机结果可复现
+
+    # pseudo-random seed for reproductivity
+    random.seed(0)  
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
 
-    # 遍历文件夹，一个文件夹对应一个类别
-    flower_class = [cla for cla in os.listdir(root) if os.path.isdir(os.path.join(root, cla))]
-    # 排序，保证顺序一致
-    flower_class.sort()
+    # ImageFolder format
+    image_class = [cls for cls in os.listdir(root) if os.path.isdir(os.path.join(root, cls))]
+    image_class.sort()
+
     # 生成类别名称以及对应的数字索引
-    class_indices = dict((k, v) for v, k in enumerate(flower_class))
+    class_indices = dict((k, v) for v, k in enumerate(image_class))
     json_str = json.dumps(dict((val, key) for key, val in class_indices.items()), indent=4)
     with open('class_indices.json', 'w') as json_file:
         json_file.write(json_str)
@@ -31,14 +35,16 @@ def read_split_data(root: str, val_rate: float = 0.2):
     val_images_label = []  # 存储验证集图片对应索引信息
     every_class_num = []  # 存储每个类别的样本总数
     supported = [".jpg", ".JPG", ".png", ".PNG"]  # 支持的文件后缀类型
+
     # 遍历每个文件夹下的文件
-    for cla in flower_class:
-        cla_path = os.path.join(root, cla)
+    for cls in image_class:
+        cls_path = os.path.join(root, cls)
+
         # 遍历获取supported支持的所有文件路径
-        images = [os.path.join(root, cla, i) for i in os.listdir(cla_path)
+        images = [os.path.join(root, cls, i) for i in os.listdir(cls_path)
                   if os.path.splitext(i)[-1] in supported]
         # 获取该类别对应的索引
-        image_class = class_indices[cla]
+        image_index = class_indices[cls]
         # 记录该类别的样本数量
         every_class_num.append(len(images))
         # 按比例随机采样验证样本
@@ -47,10 +53,10 @@ def read_split_data(root: str, val_rate: float = 0.2):
         for img_path in images:
             if img_path in val_path:  # 如果该路径在采样的验证集样本中则存入验证集
                 val_images_path.append(img_path)
-                val_images_label.append(image_class)
+                val_images_label.append(image_index)
             else:  # 否则存入训练集
                 train_images_path.append(img_path)
-                train_images_label.append(image_class)
+                train_images_label.append(image_index)
 
     print("{} images were found in the dataset.".format(sum(every_class_num)))
     print("{} images for training.".format(len(train_images_path)))
@@ -58,23 +64,42 @@ def read_split_data(root: str, val_rate: float = 0.2):
     assert len(train_images_path) > 0, "not find data for train."
     assert len(val_images_path) > 0, "not find data for eval"
 
-    plot_image = True
+    # plot `Classes_Distr.png` if set true
+    plot_image = False
     if plot_image:
-        # 绘制每种类别个数柱状图
-        plt.bar(range(len(flower_class)), every_class_num, align='center')
-        # 将横坐标0,1,2,3,4替换为相应的类别名称
-        plt.xticks(range(len(flower_class)), flower_class, rotation=45, fontsize=8)
-        # 在柱状图上添加数值标签
-        for i, v in enumerate(every_class_num):
-            plt.text(x=i, y=v + 5, s=str(v), ha='center', fontsize=8)
-        # 设置x坐标
-        plt.xlabel('image class')
-        # 设置y坐标
-        plt.ylabel('number of images')
-        # 设置柱状图的标题
-        plt.title('Class Distribution')
-        plt.savefig("./Classes_Distr.png", dpi=600, bbox_inches='tight')
-        plt.show()
+        try:
+            # 绘制每种类别个数柱状图
+            plt.bar(range(len(image_class)), every_class_num, align='center')
+            # 将横坐标0,1,2,3,4替换为相应的类别名称
+            plt.xticks(range(len(image_class)), image_class, rotation=45, fontsize=8)
+            # 在柱状图上添加数值标签
+            for i, v in enumerate(every_class_num):
+                plt.text(x=i, y=v + 5, s=str(v), ha='center', fontsize=8)
+            # 设置x坐标
+            plt.xlabel('image class')
+            # 设置y坐标
+            plt.ylabel('number of images')
+            # 设置柱状图的标题
+            plt.title('Class Distribution')
+            plt.savefig("./Classes_Distr.png", dpi=600, bbox_inches='tight')
+            plt.show()
+        except Exception as e:
+            print(e)
+            exit(-1)
+
+    # save `class_distributions.csv` if set True
+    save_csv = True
+    if save_csv:
+        try:
+            # save in pandas.Series
+            cls_index_series = pd.Series(image_class, name="Class")
+            cls_distr_series = pd.Series(every_class_num, name="Number-of-Images")
+            cls_distr_df = pd.concat([cls_index_series, cls_distr_series], axis=1)
+            cls_distr_df.to_csv("./class_distributions.csv", index=False, columns=["Class", "Number-of-Images"])
+            print("./cls_distri_series.csv saved successfully!")
+        except Exception as e:
+            print(e)
+            exit(-1)
 
     return train_images_path, train_images_label, val_images_path, val_images_label
 

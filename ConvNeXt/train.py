@@ -12,6 +12,8 @@ from utils import read_split_data, create_lr_scheduler, get_params_groups, train
 
 
 def main(args):
+    
+    # ---> Device Config <---
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
     print(f"using {device} device.")
 
@@ -19,7 +21,9 @@ def main(args):
         os.makedirs("./save_weights")
 
     tb_writer = SummaryWriter()
+    
 
+    # ---> Prepare Datasets <---
     train_images_path, train_images_label, val_images_path, val_images_label = read_split_data(args.data_path)
 
     img_size = 224
@@ -32,15 +36,9 @@ def main(args):
                                    transforms.ToTensor(),
                                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])}
 
-    # 实例化训练数据集
-    train_dataset = MyDataSet(images_path=train_images_path,
-                              images_class=train_images_label,
-                              transform=data_transform["train"])
+    train_dataset = MyDataSet(images_path=train_images_path, images_class=train_images_label, transform=data_transform["train"])
 
-    # 实例化验证数据集
-    val_dataset = MyDataSet(images_path=val_images_path,
-                            images_class=val_images_label,
-                            transform=data_transform["val"])
+    val_dataset = MyDataSet(images_path=val_images_path, images_class=val_images_label, transform=data_transform["val"])
 
     batch_size = args.batch_size
     nw = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])  # number of workers
@@ -122,8 +120,7 @@ if __name__ == '__main__':
 
     # 数据集所在根目录
     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
-    parser.add_argument('--data-path', type=str,
-                        default="E:\\tr\\puppy\\train")
+    parser.add_argument('--data-path', type=str, default="../../WinterNet/train")
 
     # 预训练权重路径，如果不想载入就设置为空字符
     # 链接: https://pan.baidu.com/s/1aNqQW4n_RrUlWUBNlaJRHA  密码: i83t
@@ -131,7 +128,7 @@ if __name__ == '__main__':
                         help='initial weights path')
     # 是否冻结head以外所有权重
     parser.add_argument('--freeze-layers', type=bool, default=False)
-    parser.add_argument('--device', default='cuda:3', help='device id (i.e. 0 or 0,1 or cpu)')
+    parser.add_argument('--device', default='cuda:1', help='device id (i.e. 0 or 0,1 or cpu)')
 
     opt = parser.parse_args()
 

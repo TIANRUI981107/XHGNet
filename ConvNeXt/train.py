@@ -103,13 +103,13 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_classes', type=int, default=59)
+    parser.add_argument('--num_classes', type=int, default=68)
     parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--batch-size', type=int, default=128)
     parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--wd', type=float, default=5e-2)
 
-    parser.add_argument('--data-path', type=str, default="../../WinterNet/train")
+    parser.add_argument('--data-path', type=str, default="../../XHGNet/train")
 
     # load pretrain model on ImageNet, don't load if set to ""
     parser.add_argument('--weights', type=str, default='./torch_convnext/convnext_tiny_1k_224_ema.pth',

@@ -9,7 +9,8 @@ from torchvision import transforms
 from my_dataset import MyDataSet
 from utils import read_split_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
 # Load torchvision models
-from torchvision.models import vgg16_bn as create_model, VGG16_BN_Weights
+# from torchvision.models import vgg16_bn as create_model, VGG16_BN_Weights
+from torchvision.models import vgg19_bn as create_model, VGG19_BN_Weights
 
 
 def main(args):
@@ -50,7 +51,7 @@ def main(args):
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, pin_memory=True,
                                              num_workers=nw, collate_fn=val_dataset.collate_fn)
 
-    weights = VGG16_BN_Weights.DEFAULT
+    weights = VGG19_BN_Weights.DEFAULT
     model = create_model(weights=weights)
     in_features = model.classifier[-1].in_features
     model.classifier[-1] = torch.nn.Linear(in_features, args.num_classes)

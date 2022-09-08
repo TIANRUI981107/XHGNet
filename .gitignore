@@ -12,6 +12,7 @@ save_weights/
 
 # Predictions and Outputs
 outputs/ 
+runs/
 
 # Swap Files
 **/*.swp

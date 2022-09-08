@@ -1,127 +1,120 @@
 import os
-import sys
-import json
+import argparse
 
 import torch
-import torch.nn as nn
-from torchvision import transforms, datasets, utils
-import matplotlib.pyplot as plt
-import numpy as np
 import torch.optim as optim
-from tqdm import tqdm
+from torch.utils.tensorboard import SummaryWriter
+from torchvision import transforms
 
-from model import AlexNet
+from my_dataset import MyDataSet
+from utils import read_split_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
+# Load torchvision models
+from torchvision.models import alexnet as create_model, AlexNet_Weights
 
 
-def main():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("using {} device.".format(device))
+def main(args):
+    
+    # ---> Device Config <---
+    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+    print(f"using {device} device.")
 
+    if os.path.exists("./save_weights") is False:
+        os.makedirs("./save_weights")
+
+    tb_writer = SummaryWriter()
+    
+
+    # ---> Prepare Datasets <---
+    train_images_path, train_images_label, val_images_path, val_images_label = read_split_data(args.data_path)
+
+    img_size = 224
     data_transform = {
-        "train": transforms.Compose([transforms.RandomResizedCrop(224),
+        "train": transforms.Compose([transforms.RandomResizedCrop(size=img_size, scale=(0.8, 0.83), ratio=(0.98, 1.02)),
                                      transforms.RandomHorizontalFlip(),
                                      transforms.ToTensor(),
-                                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
-        "val": transforms.Compose([transforms.Resize((224, 224)),  # cannot 224, must (224, 224)
+                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]),
+        "val": transforms.Compose([transforms.RandomResizedCrop(size=img_size, scale=(0.8, 0.83), ratio=(0.98, 1.02)),
                                    transforms.ToTensor(),
-                                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])}
+                                   transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])}
 
-    data_root = os.path.abspath(os.path.join(os.getcwd(), "../.."))  # get data root path
-    image_path = os.path.join(data_root, "data_set", "flower_data")  # flower data set path
-    assert os.path.exists(image_path), "{} path does not exist.".format(image_path)
-    train_dataset = datasets.ImageFolder(root=os.path.join(image_path, "train"),
-                                         transform=data_transform["train"])
-    train_num = len(train_dataset)
+    train_dataset = MyDataSet(images_path=train_images_path, images_class=train_images_label, transform=data_transform["train"])
+    val_dataset = MyDataSet(images_path=val_images_path, images_class=val_images_label, transform=data_transform["val"])
 
-    # {'daisy':0, 'dandelion':1, 'roses':2, 'sunflower':3, 'tulips':4}
-    flower_list = train_dataset.class_to_idx
-    cla_dict = dict((val, key) for key, val in flower_list.items())
-    # write dict into json file
-    json_str = json.dumps(cla_dict, indent=4)
-    with open('class_indices.json', 'w') as json_file:
-        json_file.write(json_str)
-
-    batch_size = 32
+    batch_size = args.batch_size
     nw = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])  # number of workers
     print('Using {} dataloader workers every process'.format(nw))
 
-    train_loader = torch.utils.data.DataLoader(train_dataset,
-                                               batch_size=batch_size, shuffle=True,
-                                               num_workers=nw)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True,
+                                               num_workers=nw, collate_fn=train_dataset.collate_fn)
 
-    validate_dataset = datasets.ImageFolder(root=os.path.join(image_path, "val"),
-                                            transform=data_transform["val"])
-    val_num = len(validate_dataset)
-    validate_loader = torch.utils.data.DataLoader(validate_dataset,
-                                                  batch_size=4, shuffle=False,
-                                                  num_workers=nw)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, pin_memory=True,
+                                             num_workers=nw, collate_fn=val_dataset.collate_fn)
 
-    print("using {} images for training, {} images for validation.".format(train_num,
-                                                                           val_num))
-    # test_data_iter = iter(validate_loader)
-    # test_image, test_label = test_data_iter.next()
-    #
-    # def imshow(img):
-    #     img = img / 2 + 0.5  # unnormalize
-    #     npimg = img.numpy()
-    #     plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    #     plt.show()
-    #
-    # print(' '.join('%5s' % cla_dict[test_label[j].item()] for j in range(4)))
-    # imshow(utils.make_grid(test_image))
+    weights = AlexNet_Weights.DEFAULT
+    model = create_model(weights=weights)
+    in_features = model.classifier[-1].in_features
+    model.classifier[-1] = torch.nn.Linear(in_features, args.num_classes)
+    model.to(device=device)
+    # model.classifier.add_module('68-head', torch.nn.Linear(1000, args.num_classes))
 
-    net = AlexNet(num_classes=5, init_weights=True)
+    if args.freeze_layers:
+        for name, para in model.named_parameters():
+            # 除head外，其他权重全部冻结
+            if "head" not in name:
+                para.requires_grad_(False)
+            else:
+                print("training {}".format(name))
 
-    net.to(device)
-    loss_function = nn.CrossEntropyLoss()
-    # pata = list(net.parameters())
-    optimizer = optim.Adam(net.parameters(), lr=0.0002)
+    # pg = [p for p in model.parameters() if p.requires_grad]
+    pg = get_params_groups(model, weight_decay=args.wd)
+    optimizer = optim.AdamW(pg, lr=args.lr, weight_decay=args.wd)
+    lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=1)
 
-    epochs = 10
-    save_path = './AlexNet.pth'
-    best_acc = 0.0
-    train_steps = len(train_loader)
-    for epoch in range(epochs):
+    best_acc = 0.
+    for epoch in range(args.epochs):
         # train
-        net.train()
-        running_loss = 0.0
-        train_bar = tqdm(train_loader, file=sys.stdout)
-        for step, data in enumerate(train_bar):
-            images, labels = data
-            optimizer.zero_grad()
-            outputs = net(images.to(device))
-            loss = loss_function(outputs, labels.to(device))
-            loss.backward()
-            optimizer.step()
-
-            # print statistics
-            running_loss += loss.item()
-
-            train_bar.desc = "train epoch[{}/{}] loss:{:.3f}".format(epoch + 1,
-                                                                     epochs,
-                                                                     loss)
+        train_loss, train_acc = train_one_epoch(model=model,
+                                                optimizer=optimizer,
+                                                data_loader=train_loader,
+                                                device=device,
+                                                epoch=epoch,
+                                                lr_scheduler=lr_scheduler)
 
         # validate
-        net.eval()
-        acc = 0.0  # accumulate accurate number / epoch
-        with torch.no_grad():
-            val_bar = tqdm(validate_loader, file=sys.stdout)
-            for val_data in val_bar:
-                val_images, val_labels = val_data
-                outputs = net(val_images.to(device))
-                predict_y = torch.max(outputs, dim=1)[1]
-                acc += torch.eq(predict_y, val_labels.to(device)).sum().item()
+        val_loss, val_acc = evaluate(model=model,
+                                     data_loader=val_loader,
+                                     device=device,
+                                     epoch=epoch)
 
-        val_accurate = acc / val_num
-        print('[epoch %d] train_loss: %.3f  val_accuracy: %.3f' %
-              (epoch + 1, running_loss / train_steps, val_accurate))
+        tags = ["train_loss", "train_acc", "val_loss", "val_acc", "learning_rate"]
+        tb_writer.add_scalar(tags[0], train_loss, epoch)
+        tb_writer.add_scalar(tags[1], train_acc, epoch)
+        tb_writer.add_scalar(tags[2], val_loss, epoch)
+        tb_writer.add_scalar(tags[3], val_acc, epoch)
+        tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
 
-        if val_accurate > best_acc:
-            best_acc = val_accurate
-            torch.save(net.state_dict(), save_path)
-
-    print('Finished Training')
+        if best_acc < val_acc:
+            torch.save(model.state_dict(), "save_weights/best_model_alexnet_pretrained.pth")
+            best_acc = val_acc
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--num_classes', type=int, default=68)
+    parser.add_argument('--epochs', type=int, default=50)
+    parser.add_argument('--batch-size', type=int, default=512)
+    parser.add_argument('--lr', type=float, default=5e-4)
+    parser.add_argument('--wd', type=float, default=5e-2)
+
+    parser.add_argument('--data-path', type=str, default="../../XHGNet/train")
+
+    # load pretrain model on ImageNet, don't load if set to ""
+    parser.add_argument('--weights', type=str, default='',
+                        help='initial weights path')
+    # whether freeze layers except cls-head
+    parser.add_argument('--freeze-layers', type=bool, default=False)
+    parser.add_argument('--device', default='cuda:1', help='device id (i.e. 0 or 0,1 or cpu)')
+
+    opt = parser.parse_args()
+
+    main(opt)

@@ -10,8 +10,8 @@ from my_dataset import MyDataSet
 from utils import read_split_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
 
 # *---> Load torchvision models <---*
-from torchvision.models import mobilenet_v3_small as create_model, MobileNet_V3_Small_Weights
-
+# from torchvision.models import mobilenet_v3_small as create_model, MobileNet_V3_Small_Weights
+from torchvision.models import mobilenet_v3_large as create_model, MobileNet_V3_Large_Weights
 
 def main(args):
     
@@ -51,7 +51,7 @@ def main(args):
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, pin_memory=True,
                                              num_workers=nw, collate_fn=val_dataset.collate_fn)
 
-    weights = MobileNet_V3_Small_Weights.DEFAULT
+    weights = MobileNet_V3_Large_Weights.DEFAULT
     model = create_model(weights=weights)
     in_features = model.classifier[-1].in_features
     model.classifier[-1] = torch.nn.Linear(in_features, args.num_classes)
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_classes', type=int, default=68)
     parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--batch-size', type=int, default=512)
+    parser.add_argument('--batch-size', type=int, default=256)
     parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--wd', type=float, default=5e-2)
 

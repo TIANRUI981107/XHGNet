@@ -7,15 +7,15 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 
 from my_dataset import MyDataSet
-from model import swin_tiny_patch4_window7_224 as create_model
+from model import swin_base_patch4_window12_384 as create_model
 from utils import read_split_data, train_one_epoch, evaluate
 
 
 def main(args):
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 
-    if os.path.exists("./weights") is False:
-        os.makedirs("./weights")
+    if os.path.exists("./save_weights") is False:
+        os.makedirs("./save_weights")
 
     tb_writer = SummaryWriter()
 
@@ -107,18 +107,18 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_classes', type=int, default=5)
-    parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--batch-size', type=int, default=8)
+    parser.add_argument('--num_classes', type=int, default=68)
+    parser.add_argument('--epochs', type=int, default=75)
+    parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--lr', type=float, default=0.0001)
 
     # 数据集所在根目录
     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
     parser.add_argument('--data-path', type=str,
-                        default="/data/flower_photos")
+                        default="../../XHGNet/train")
 
     # 预训练权重路径，如果不想载入就设置为空字符
-    parser.add_argument('--weights', type=str, default='./swin_tiny_patch4_window7_224.pth',
+    parser.add_argument('--weights', type=str, default='./swin_base_patch4_window12_384.pth',
                         help='initial weights path')
     # 是否冻结权重
     parser.add_argument('--freeze-layers', type=bool, default=False)

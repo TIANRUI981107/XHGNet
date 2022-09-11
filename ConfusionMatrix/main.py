@@ -14,7 +14,8 @@ import pandas as pd
 # from model import convnext_base as create_model
 # from torchvision.models import resnet152 as create_model
 # from torchvision.models import resnet101 as create_model
-from torchvision.models import mobilenet_v3_small as create_model
+# from torchvision.models import mobilenet_v3_small as create_model
+from torchvision.models import mobilenet_v3_large as create_model
 
 
 class ConfusionMatrix(object):
@@ -149,7 +150,7 @@ if __name__ == '__main__':
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/mobilenet-small/save_weights/best_model.pth"
+    model_weight_path = "./outputs/mobilenet-large/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)

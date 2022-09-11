@@ -9,8 +9,8 @@ from utils import GradCAM, show_cam_on_image, center_crop_img
 
 
 def main():
-    model = models.mobilenet_v3_large(pretrained=True)
-    target_layers = [model.features[-1]]
+    # model = models.mobilenet_v3_large(pretrained=True)
+    # target_layers = [model.features[-1]]
 
     # model = models.vgg16(pretrained=True)
     # target_layers = [model.features]
@@ -24,14 +24,31 @@ def main():
     # model = models.efficientnet_b0(pretrained=True)
     # target_layers = [model.features]
 
+    # set device
+    device = torch.device("cpu")
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    model = models.resnet152()
+    in_features = model.fc.in_features
+    model.fc = torch.nn.Linear(in_features=in_features, out_features=68)
+    target_layers = [model.layer4]
+
+    # Load model weights
+    model_weight_path = "./outputs/save_weights/best_model.pth"
+    assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
+    model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
+    model.to(device=device)
+
+    # Data transform
     data_transform = transforms.Compose([transforms.ToTensor(),
-                                         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+
     # load image
-    img_path = "both.png"
+    img_path = "003J.jpg"
     assert os.path.exists(img_path), "file: '{}' dose not exist.".format(img_path)
     img = Image.open(img_path).convert('RGB')
     img = np.array(img, dtype=np.uint8)
-    # img = center_crop_img(img, 224)
+    img = center_crop_img(img, 224)
 
     # [C, H, W]
     img_tensor = data_transform(img)
@@ -40,7 +57,8 @@ def main():
     input_tensor = torch.unsqueeze(img_tensor, dim=0)
 
     cam = GradCAM(model=model, target_layers=target_layers, use_cuda=False)
-    target_category = 281  # tabby, tabby cat
+    target_category = None
+    # target_category = 281  # tabby, tabby cat
     # target_category = 254  # pug, pug-dog
 
     grayscale_cam = cam(input_tensor=input_tensor, target_category=target_category)
@@ -50,6 +68,7 @@ def main():
                                       grayscale_cam,
                                       use_rgb=True)
     plt.imshow(visualization)
+    plt.savefig(f"{img_path.split('.')[0]}.png", dpi=1200, bbox_inches='tight')
     plt.show()
 
 

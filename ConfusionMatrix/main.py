@@ -12,7 +12,8 @@ from prettytable import PrettyTable
 import pandas as pd
 
 # from model import convnext_base as create_model
-from torchvision.models import resnet152 as create_model
+# from torchvision.models import resnet152 as create_model
+from torchvision.models import resnet101 as create_model
 
 
 class ConfusionMatrix(object):
@@ -146,7 +147,7 @@ if __name__ == '__main__':
     model.fc = torch.nn.Linear(in_features, 68)
 
     # load pretrain weights
-    model_weight_path = "./outputs/save_weights/best_model.pth"
+    model_weight_path = "./outputs/resnet101/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)

@@ -1,4 +1,5 @@
 import os
+import time
 import json
 from unicodedata import name
 
@@ -10,7 +11,8 @@ import matplotlib.pyplot as plt
 from prettytable import PrettyTable
 import pandas as pd
 
-from model import convnext_base as create_model
+# from model import convnext_base as create_model
+from torchvision.models import resnet152 as create_model
 
 
 class ConfusionMatrix(object):
@@ -94,52 +96,99 @@ class ConfusionMatrix(object):
                              verticalalignment='center',
                              horizontalalignment='center',
                              color="white" if info > thresh else "black",
-                             fontsize=8)
+                             fontsize=6)
         plt.tight_layout()
-        plt.savefig("./confusion-matrix.png", dpi=600, bbox_inches='tight')
-        # plt.show()
+        plt.savefig("./confusion-matrix.png", dpi=800, bbox_inches='tight')
+        plt.show()
+
+
+def time_synchronized():
+    torch.cuda.synchronize() if torch.cuda.is_available() else None
+    return time.time()
+
+
+def plot_inference_nms_time(times):
+    try:
+        x = list(range(len(times)))
+        plt.plot(x, times, label='Inference Time')
+        plt.xlabel('Images/it')
+        plt.ylabel('Time/s')
+        plt.title('Inference Time of Test Datasets')
+        plt.xlim(0, len(times))
+        plt.legend(loc='best')
+        plt.savefig('./inference_time.png')
+        plt.close()
+        print("successful save inference_time curve!")
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
-    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(device)
 
     data_transform = transforms.Compose([transforms.RandomResizedCrop(size=224, scale=(0.8, 0.83), ratio=(0.98, 1.02)),
                                          transforms.ToTensor(),
                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "val"))  # get data root path
+    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val"))  # get data root path
     # image_path = os.path.join(data_root, "data_set", "flower_data")  # flower data set path
     assert os.path.exists(data_root), "data path {} does not exist.".format(data_root)
 
     validate_dataset = datasets.ImageFolder(root=data_root, transform=data_transform)
 
-    batch_size = 256
-    validate_loader = torch.utils.data.DataLoader(validate_dataset, batch_size=batch_size, shuffle=False, num_workers=8)
-    net = create_model(num_classes=59)
+    batch_size = 1
+    validate_loader = torch.utils.data.DataLoader(validate_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+
+    # Create model
+    model = create_model()
+    in_features = model.fc.in_features
+    model.fc = torch.nn.Linear(in_features, 68)
 
     # load pretrain weights
-    model_weight_path = "./best_model_convnext_base_22k_224.pth"
+    model_weight_path = "./outputs/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
-    net.load_state_dict(torch.load(model_weight_path, map_location=device), strict=False)
-    net.to(device)
+    model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
+    model.to(device)
 
     # read class_indict
-    json_label_path = './class_indices.json'
+    json_label_path = './outputs/class_indices.json'
     assert os.path.exists(json_label_path), "cannot find {} file".format(json_label_path)
     json_file = open(json_label_path, 'r')
     class_indict = json.load(json_file)
 
     labels = [label for _, label in class_indict.items()]
-    confusion = ConfusionMatrix(num_classes=34, labels=labels)
-    net.eval()
+    confusion = ConfusionMatrix(num_classes=68, labels=labels)
+
+    timer_list = []
+    model.eval()
     with torch.no_grad():
         for val_data in tqdm(validate_loader):
+
             val_images, val_labels = val_data
-            outputs = net(val_images.to(device))
+
+            # init model for accurate `inference+NMS` time counting
+            img_height, img_width = val_images.shape[-2:]
+            init_img = torch.zeros((1, 3, img_height, img_width), device=device)
+            model(init_img)
+
+            t_start = time_synchronized()
+            outputs = model(val_images.to(device))
+            t_end = time_synchronized()
+            # print("Inference Time: {} sec".format(t_end - t_start))
+            timer_list.append(t_end - t_start)
+
             outputs = torch.softmax(outputs, dim=1)
             outputs = torch.argmax(outputs, dim=1)
             confusion.update(outputs.to("cpu").numpy(), val_labels.to("cpu").numpy())
     confusion.plot()
     confusion.summary()
+    if len(timer_list) != 0:
+        plot_inference_nms_time(timer_list)
+        try:
+            df = pd.Series(timer_list)
+            df.to_csv("./inference_time.csv")
+        except Exception as e:
+            print(e)
+            exit(-1)
 

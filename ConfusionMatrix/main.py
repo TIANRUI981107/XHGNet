@@ -131,8 +131,8 @@ def plot_inference_nms_time(times):
 if __name__ == '__main__':
     
     # *--> Config <--*
-    device = torch.device('cpu')
-    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # device = torch.device('cpu')
+    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
     print(f"On Remote: {device}")
     # print(f"On Local: {device}")

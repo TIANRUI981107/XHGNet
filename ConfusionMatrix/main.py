@@ -14,8 +14,8 @@ import pandas as pd
 # from model import convnext_base as create_model
 # from torchvision.models import resnet152 as create_model
 # from torchvision.models import resnet101 as create_model
-# from torchvision.models import resnet50 as create_model
-from torchvision.models import mobilenet_v3_small as create_model
+from torchvision.models import resnet50 as create_model
+# from torchvision.models import mobilenet_v3_small as create_model
 # from torchvision.models import mobilenet_v3_large as create_model
 # from torchvision.models import vgg16_bn as create_model
 
@@ -158,12 +158,12 @@ if __name__ == '__main__':
 
     # Create model
     model = create_model()
-    in_features = model.classifier[-1].in_features
-    model.classifier[-1] = torch.nn.Linear(in_features, 68)
+    in_features = model.fc.in_features
+    model.fc = torch.nn.Linear(in_features, 68)
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/mobilenet-small/save_weights/best_model.pth"
+    model_weight_path = "./outputs/resnet50/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)

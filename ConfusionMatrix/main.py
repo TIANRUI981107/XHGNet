@@ -12,11 +12,12 @@ from prettytable import PrettyTable
 import pandas as pd
 
 # from model import convnext_base as create_model
-# from torchvision.models import resnet152 as create_model
+from torchvision.models import resnet152 as create_model
 # from torchvision.models import resnet101 as create_model
+# from torchvision.models import resnet50 as create_model
 # from torchvision.models import mobilenet_v3_small as create_model
 # from torchvision.models import mobilenet_v3_large as create_model
-from torchvision.models import vgg16_bn as create_model
+# from torchvision.models import vgg16_bn as create_model
 
 
 class ConfusionMatrix(object):
@@ -128,7 +129,8 @@ def plot_inference_nms_time(times):
 
 
 if __name__ == '__main__':
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device('cpu')
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(device)
 
     data_transform = transforms.Compose([transforms.RandomResizedCrop(size=224, scale=(0.8, 0.83), ratio=(0.98, 1.02)),
@@ -146,12 +148,12 @@ if __name__ == '__main__':
 
     # Create model
     model = create_model()
-    in_features = model.classifier[-1].in_features
-    model.classifier[-1] = torch.nn.Linear(in_features, 68)
+    in_features = model.fc.in_features
+    model.fc = torch.nn.Linear(in_features, 68)
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/vgg16-bn/save_weights/best_model.pth"
+    model_weight_path = "./outputs/resnet152/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)

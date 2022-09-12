@@ -14,9 +14,10 @@ import pandas as pd
 # from model import convnext_base as create_model
 # from torchvision.models import resnet152 as create_model
 # from torchvision.models import resnet101 as create_model
+from torchvision.models import resnet50 as create_model
 # from torchvision.models import mobilenet_v3_small as create_model
 # from torchvision.models import mobilenet_v3_large as create_model
-from torchvision.models import vgg16_bn as create_model
+# from torchvision.models import vgg16_bn as create_model
 
 
 class ConfusionMatrix(object):
@@ -103,7 +104,7 @@ class ConfusionMatrix(object):
                              fontsize=6)
         plt.tight_layout()
         plt.savefig("./confusion-matrix.png", dpi=800, bbox_inches='tight')
-        plt.show()
+        # plt.show()
 
 
 def time_synchronized():
@@ -128,30 +129,42 @@ def plot_inference_nms_time(times):
 
 
 if __name__ == '__main__':
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
+    
+    # *--> Config <--*
+    device = torch.device('cpu')
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    # print(f"On Remote: {device}")
+    print(f"On Local: {device}")
+
+
+    # remote path
+    # data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "XHGNet", "val"))
+
+    # local path 
+    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val"))  # get data root path
+
+    # image_path = os.path.join(data_root, "data_set", "flower_data")  # flower data set path
+    assert os.path.exists(data_root), "data path {} does not exist.".format(data_root)
 
     data_transform = transforms.Compose([transforms.RandomResizedCrop(size=224, scale=(0.8, 0.83), ratio=(0.98, 1.02)),
                                          transforms.ToTensor(),
                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val"))  # get data root path
-    # image_path = os.path.join(data_root, "data_set", "flower_data")  # flower data set path
-    assert os.path.exists(data_root), "data path {} does not exist.".format(data_root)
-
     validate_dataset = datasets.ImageFolder(root=data_root, transform=data_transform)
+
 
     batch_size = 1
     validate_loader = torch.utils.data.DataLoader(validate_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     # Create model
     model = create_model()
-    in_features = model.classifier[-1].in_features
-    model.classifier[-1] = torch.nn.Linear(in_features, 68)
+    in_features = model.fc.in_features
+    model.fc = torch.nn.Linear(in_features, 68)
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/vgg16-bn/save_weights/best_model.pth"
+    model_weight_path = "./outputs/resnet50/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)

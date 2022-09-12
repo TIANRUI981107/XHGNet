@@ -134,15 +134,15 @@ if __name__ == '__main__':
     device = torch.device('cpu')
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    print(f"On Remote: {device}")
-    # print(f"On Local: {device}")
+    # print(f"On Remote: {device}")
+    print(f"On Local: {device}")
 
 
     # remote path
-    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "XHGNet", "val"))
+    # data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "XHGNet", "val"))
 
     # local path 
-    # data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val"))  # get data root path
+    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val"))  # get data root path
 
     # image_path = os.path.join(data_root, "data_set", "flower_data")  # flower data set path
     assert os.path.exists(data_root), "data path {} does not exist.".format(data_root)

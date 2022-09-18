@@ -104,20 +104,20 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_classes', type=int, default=68)
+    parser.add_argument('--num_classes', type=int, default=25)
     parser.add_argument('--epochs', type=int, default=75)
     parser.add_argument('--batch-size', type=int, default=64)
     parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--wd', type=float, default=5e-2)
 
-    parser.add_argument('--data-path', type=str, default="../../XHGNet/train")
+    parser.add_argument('--data-path', type=str, default="../../U-XHGNet/train")
 
     # load pretrain model on ImageNet, don't load if set to ""
     parser.add_argument('--weights', type=str, default='',
                         help='initial weights path')
     # whether freeze layers except cls-head
     parser.add_argument('--freeze-layers', type=bool, default=False)
-    parser.add_argument('--device', default='cuda:1', help='device id (i.e. 0 or 0,1 or cpu)')
+    parser.add_argument('--device', default='cuda:0', help='device id (i.e. 0 or 0,1 or cpu)')
 
     opt = parser.parse_args()
 

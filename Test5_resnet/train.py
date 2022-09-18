@@ -11,8 +11,8 @@ from utils import read_split_data, create_lr_scheduler, get_params_groups, train
 
 # *---> Load torchvision models <---* # 
 # from torchvision.models import resnet50 as create_model, ResNet50_Weights
-# from torchvision.models import resnet101 as create_model, ResNet101_Weights
-from torchvision.models import resnet152 as create_model, ResNet152_Weights
+from torchvision.models import resnet101 as create_model, ResNet101_Weights
+# from torchvision.models import resnet152 as create_model, ResNet152_Weights
 # from torchvision.models import resnext50_32x4d as create_model, ResNeXt50_32X4D_Weights
 
 
@@ -54,7 +54,7 @@ def main(args):
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, pin_memory=True,
                                              num_workers=nw, collate_fn=val_dataset.collate_fn)
 
-    weights = ResNet152_Weights.DEFAULT
+    weights = ResNet101_Weights.DEFAULT
     model = create_model(weights=weights)
     in_features = model.fc.in_features
     model.fc = torch.nn.Linear(in_features, args.num_classes)
@@ -105,8 +105,8 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_classes', type=int, default=25)
-    parser.add_argument('--epochs', type=int, default=75)
-    parser.add_argument('--batch-size', type=int, default=64)
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--batch-size', type=int, default=128)
     parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--wd', type=float, default=5e-2)
 

@@ -3,6 +3,7 @@
 WinterNet/
 OutWinterNet/
 XHGNet/
+U-XHGNet/
 
 # Model Weights
 pretrained_weights/

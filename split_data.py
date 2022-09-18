@@ -15,10 +15,10 @@ def main():
     random.seed(0)
 
     # 10% validation datasets
-    split_rate = 0.1
+    split_rate = 0.3
 
     # root/to/ImageFolder
-    data_root = os.path.join(os.getcwd(), "..", "XHGNet")
+    data_root = os.path.join(os.getcwd(), "..", "U-XHGNet")
     origin_image_path = os.path.join(data_root, "train-val")
     assert os.path.exists(origin_image_path), "path '{}' does not exist.".format(origin_image_path)
 

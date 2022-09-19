@@ -131,8 +131,8 @@ def plot_inference_nms_time(times):
 if __name__ == '__main__':
     
     # *--> Config <--*
-    device = torch.device('cpu')
-    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # device = torch.device('cpu')
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # print(f"On Remote: {device}")
     print(f"On Local: {device}")
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     # data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "XHGNet", "val"))
 
     # local path 
-    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val"))  # get data root path
+    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val-UXHG"))  # get data root path
 
     # image_path = os.path.join(data_root, "data_set", "flower_data")  # flower data set path
     assert os.path.exists(data_root), "data path {} does not exist.".format(data_root)
@@ -160,23 +160,23 @@ if __name__ == '__main__':
     # Create model
     model = create_model()
     in_features = model.fc.in_features
-    model.fc = torch.nn.Linear(in_features, 68)
+    model.fc = torch.nn.Linear(in_features, 25)
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/resnet50/save_weights/best_model.pth"
+    model_weight_path = "./outputs/resnet50-0918-UXHGNet/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)
 
     # read class_indict
-    json_label_path = './outputs/class_indices.json'
+    json_label_path = './outputs/class_indices-UXHG.json'
     assert os.path.exists(json_label_path), "cannot find {} file".format(json_label_path)
     json_file = open(json_label_path, 'r')
     class_indict = json.load(json_file)
 
     labels = [label for _, label in class_indict.items()]
-    confusion = ConfusionMatrix(num_classes=68, labels=labels)
+    confusion = ConfusionMatrix(num_classes=25, labels=labels)
 
     timer_list = []
     model.eval()

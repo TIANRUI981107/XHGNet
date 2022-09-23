@@ -10,8 +10,8 @@ from my_dataset import MyDataSet
 from utils import read_split_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
 # Load torchvision models
 # from torchvision.models import resnext50_32x4d as create_model, ResNeXt50_32X4D_Weights
-from torchvision.models import resnext101_32x8d as create_model, ResNeXt101_32X8D_Weights
-# from torchvision.models import resnext101_64x4d as create_model, ResNeXt101_64X4D_Weights
+# from torchvision.models import resnext101_32x8d as create_model, ResNeXt101_32X8D_Weights
+from torchvision.models import resnext101_64x4d as create_model, ResNeXt101_64X4D_Weights
 
 
 def main(args):
@@ -52,7 +52,7 @@ def main(args):
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, pin_memory=True,
                                              num_workers=nw, collate_fn=val_dataset.collate_fn)
 
-    weights = ResNeXt101_32X8D_Weights.DEFAULT
+    weights = ResNeXt101_64X4D_Weights.DEFAULT
     model = create_model(weights=weights)
     in_features = model.fc.in_features
     model.fc = torch.nn.Linear(in_features, args.num_classes)

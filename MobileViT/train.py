@@ -14,8 +14,8 @@ from utils import read_split_data, train_one_epoch, evaluate
 def main(args):
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 
-    if os.path.exists("./weights") is False:
-        os.makedirs("./weights")
+    if os.path.exists("./save_weights") is False:
+        os.makedirs("./save_weights")
 
     tb_writer = SummaryWriter()
 
@@ -23,12 +23,11 @@ def main(args):
 
     img_size = 224
     data_transform = {
-        "train": transforms.Compose([transforms.RandomResizedCrop(img_size),
+        "train": transforms.Compose([transforms.RandomResizedCrop(size=img_size, scale=(0.8, 0.83), ratio=(0.98, 1.02)),
                                      transforms.RandomHorizontalFlip(),
                                      transforms.ToTensor(),
                                      transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]),
-        "val": transforms.Compose([transforms.Resize(int(img_size * 1.143)),
-                                   transforms.CenterCrop(img_size),
+        "val": transforms.Compose([transforms.RandomResizedCrop(size=img_size, scale=(0.8, 0.83), ratio=(0.98, 1.02)),
                                    transforms.ToTensor(),
                                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])}
 
@@ -106,25 +105,22 @@ def main(args):
 
         if val_acc > best_acc:
             best_acc = val_acc
-            torch.save(model.state_dict(), "./weights/best_model.pth")
+            torch.save(model.state_dict(), "./save_weights/best_model.pth")
 
-        torch.save(model.state_dict(), "./weights/latest_model.pth")
+        torch.save(model.state_dict(), "./save_weights/latest_model.pth")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_classes', type=int, default=5)
-    parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--batch-size', type=int, default=8)
+    parser.add_argument('--num_classes', type=int, default=68)
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--batch-size', type=int, default=256)
     parser.add_argument('--lr', type=float, default=0.0002)
 
-    # 数据集所在根目录
-    # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
-    parser.add_argument('--data-path', type=str,
-                        default="/data/flower_photos")
+    parser.add_argument('--data-path', type=str, default="../../XHGNet/train")
 
     # 预训练权重路径，如果不想载入就设置为空字符
-    parser.add_argument('--weights', type=str, default='./mobilevit_xxs.pt',
+    parser.add_argument('--weights', type=str, default='outputs/torch_mobilevit/mobilevit_xxs.pt',
                         help='initial weights path')
     # 是否冻结权重
     parser.add_argument('--freeze-layers', type=bool, default=False)

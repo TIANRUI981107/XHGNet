@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 
 from my_dataset import MyDataSet
-from model import mobile_vit_x_small as create_model
+from model import mobile_vit_small as create_model
 from utils import read_split_data, train_one_epoch, evaluate
 
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--weights",
         type=str,
-        default="outputs/torch_mobilevit/mobilevit_xs.pt",
+        default="outputs/torch_mobilevit/mobilevit_s.pt",
         help="initial weights path",
     )
     # 是否冻结权重

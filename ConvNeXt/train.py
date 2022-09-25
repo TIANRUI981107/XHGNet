@@ -97,14 +97,14 @@ def main(args):
         tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
 
         if best_acc < val_acc:
-            torch.save(model.state_dict(), "save_weights/best_model_tiny_1k_224_ema.pth")
+            torch.save(model.state_dict(), "save_weights/best_model.pth")
             best_acc = val_acc
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_classes', type=int, default=68)
-    parser.add_argument('--epochs', type=int, default=75)
+    parser.add_argument('--epochs', type=int, default=125)
     parser.add_argument('--batch-size', type=int, default=64)
     parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--wd', type=float, default=5e-2)

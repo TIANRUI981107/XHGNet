@@ -18,11 +18,11 @@ from model.residual_attention_network import (
     ResidualAttentionModel_92_32input_update as ResidualAttentionModel,
 )
 
-model_file = "model_92_sgd.pkl"
+model_file = "model_92_sgd.pth"
 
 
 # for test
-def test(model, test_loader, btrain=False, model_file="model_92.pkl"):
+def test(model, test_loader, btrain=False, model_file="model_92.pth"):
     # Test
     if not btrain:
         model.load_state_dict(torch.load(model_file))
@@ -133,7 +133,13 @@ if is_train is True:
             if (i + 1) % 100 == 0:
                 print(
                     "Epoch [%d/%d], Iter [%d/%d] Loss: %.4f"
-                    % (epoch + 1, total_epoch, i + 1, len(train_loader), loss.detach().item())
+                    % (
+                        epoch + 1,
+                        total_epoch,
+                        i + 1,
+                        len(train_loader),
+                        loss.detach().item(),
+                    )
                 )
         print("the epoch takes time:", time.time() - tims)
         print("evaluate test set:")
@@ -156,7 +162,7 @@ if is_train is True:
             # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
             # optim.SGD(model.parameters(), lr=lr, momentum=0.9, nesterov=True, weight_decay=0.0001)
     # Save the Model
-    torch.save(model.state_dict(), "last_model_92_sgd.pkl")
+    torch.save(model.state_dict(), "last_model_92_sgd.pth")
 
 else:
     test(model, test_loader, btrain=False)

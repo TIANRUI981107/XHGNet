@@ -18,6 +18,14 @@ from model.residual_attention_network import (
     ResidualAttentionModel_92_32input_update as ResidualAttentionModel,
 )
 
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+print(f"using {device} device.")
+
+if os.path.exists("./save_weights") is False:
+    os.makedirs("./save_weights")
+
+tb_writer = SummaryWriter()
+
 model_file = "model_92_sgd.pth"
 
 
@@ -35,8 +43,8 @@ def test(model, test_loader, btrain=False, model_file="model_92.pth"):
     class_total = list(0.0 for i in range(10))
 
     for images, labels in test_loader:
-        images = Variable(images.cuda())
-        labels = Variable(labels.cuda())
+        images = Variable(images.to(device))
+        labels = Variable(labels.to(device))
         outputs = model(images)
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
@@ -81,7 +89,7 @@ test_dataset = datasets.CIFAR10(root="./data/", train=False, transform=test_tran
 
 # Data Loader (Input Pipeline)
 train_loader = torch.utils.data.DataLoader(
-    dataset=train_dataset, batch_size=64, shuffle=True, num_workers=8  # 64
+    dataset=train_dataset, batch_size=256, shuffle=True, num_workers=8  # 64
 )
 test_loader = torch.utils.data.DataLoader(
     dataset=test_dataset, batch_size=20, shuffle=False
@@ -99,7 +107,7 @@ classes = (
     "ship",
     "truck",
 )
-model = ResidualAttentionModel().cuda()
+model = ResidualAttentionModel().to(device)
 print(model)
 
 lr = 0.1  # 0.1
@@ -116,12 +124,13 @@ if is_train is True:
         model.load_state_dict((torch.load(model_file)))
     # Training
     for epoch in range(total_epoch):
+        train_loss = []
         model.train()
         tims = time.time()
         for i, (images, labels) in enumerate(train_loader):
-            images = Variable(images.cuda())
+            images = Variable(images.to(device))
             # print(images.data)
-            labels = Variable(labels.cuda())
+            labels = Variable(labels.to(device))
 
             # Forward + Backward + Optimize
             optimizer.zero_grad()
@@ -141,13 +150,21 @@ if is_train is True:
                         loss.detach().item(),
                     )
                 )
+            train_loss.append(loss.detach().item())
+        train_loss = np.average(train_loss)
         print("the epoch takes time:", time.time() - tims)
         print("evaluate test set:")
-        acc = test(model, test_loader, btrain=True)
-        if acc > acc_best:
-            acc_best = acc
-            print("current best acc,", acc_best)
-            torch.save(model.state_dict(), model_file)
+        val_acc = test(model, test_loader, btrain=True)
+
+        tags = ["train_loss", "val_acc", "learning_rate"]
+        tb_writer.add_scalar(tags[0], train_loss, epoch + 1)
+        tb_writer.add_scalar(tags[1], val_acc, epoch + 1)
+        tb_writer.add_scalar(tags[2], optimizer.param_groups[0]["lr"], epoch + 1)
+
+        if val_acc > acc_best:
+            acc_best = val_acc
+            print("current best val_acc,", acc_best)
+            torch.save(model.state_dict(), f"./save_weights/{model_file}")
         # Decaying Learning Rate
         if (
             (epoch + 1) / float(total_epoch) == 0.3
@@ -162,7 +179,7 @@ if is_train is True:
             # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
             # optim.SGD(model.parameters(), lr=lr, momentum=0.9, nesterov=True, weight_decay=0.0001)
     # Save the Model
-    torch.save(model.state_dict(), "last_model_92_sgd.pth")
+    torch.save(model.state_dict(), "./save_weights/last_model_92_sgd.pth")
 
 else:
     test(model, test_loader, btrain=False)

@@ -115,6 +115,7 @@ def time_synchronized():
 def plot_inference_nms_time(times):
     try:
         x = list(range(len(times)))
+        fig, ax = plt.subplots()
         plt.plot(x, times, label='Inference Time')
         plt.xlabel('Images/it')
         plt.ylabel('Time/s')
@@ -134,20 +135,21 @@ if __name__ == '__main__':
     # device = torch.device('cpu')
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    # print(f"On Remote: {device}")
-    print(f"On Local: {device}")
+    print(f"On Remote: {device}")
+    # print(f"On Local: {device}")
 
 
     # remote path
-    # data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "XHGNet", "val"))
+    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "data", "val-XHG"))
 
     # local path 
-    data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val-UXHG"))  # get data root path
+    # data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val-UXHG"))  # get data root path
 
     # image_path = os.path.join(data_root, "data_set", "flower_data")  # flower data set path
     assert os.path.exists(data_root), "data path {} does not exist.".format(data_root)
 
-    data_transform = transforms.Compose([transforms.RandomResizedCrop(size=224, scale=(0.8, 0.83), ratio=(0.98, 1.02)),
+    data_transform = transforms.Compose([transforms.CenterCrop((2048, 2048)),
+                                         transforms.Resize((224, 224)),
                                          transforms.ToTensor(),
                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
@@ -155,28 +157,28 @@ if __name__ == '__main__':
 
 
     batch_size = 1
-    validate_loader = torch.utils.data.DataLoader(validate_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    validate_loader = torch.utils.data.DataLoader(validate_dataset, batch_size=batch_size, shuffle=False, num_workers=1)
 
     # Create model
     model = create_model()
     in_features = model.fc.in_features
-    model.fc = torch.nn.Linear(in_features, 25)
+    model.fc = torch.nn.Linear(in_features, 68)
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/resnet152-0918-UXHGNet/save_weights/best_model.pth"
+    model_weight_path = "./outputs/resnet152/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)
 
     # read class_indict
-    json_label_path = './outputs/class_indices-UXHG.json'
+    json_label_path = './outputs/class_indices-XHG.json'
     assert os.path.exists(json_label_path), "cannot find {} file".format(json_label_path)
     json_file = open(json_label_path, 'r')
     class_indict = json.load(json_file)
 
     labels = [label for _, label in class_indict.items()]
-    confusion = ConfusionMatrix(num_classes=25, labels=labels)
+    confusion = ConfusionMatrix(num_classes=68, labels=labels)
 
     timer_list = []
     model.eval()

@@ -9,8 +9,8 @@ from torchvision import transforms
 from my_dataset import MyDataSet
 from utils import read_split_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
 # Load torchvision models
-from torchvision.models import shufflenet_v2_x0_5 as create_model, ShuffleNet_V2_X0_5_Weights
-# from torchvision.models import shufflenet_v2_x1_0 as create_model, ShuffleNet_V2_X1_0_Weights
+# from torchvision.models import shufflenet_v2_x0_5 as create_model, ShuffleNet_V2_X0_5_Weights
+from torchvision.models import shufflenet_v2_x1_0 as create_model, ShuffleNet_V2_X1_0_Weights
 # from torchvision.models import shufflenet_v2_x1_5 as create_model, ShuffleNet_V2_X1_5_Weights
 # from torchvision.models import shufflenet_v2_x2_0 as create_model, ShuffleNet_V2_X2_0_Weights
 
@@ -54,7 +54,7 @@ def main(args):
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, pin_memory=True,
                                              num_workers=nw, collate_fn=val_dataset.collate_fn)
 
-    weights = ShuffleNet_V2_X0_5_Weights.DEFAULT
+    weights = ShuffleNet_V2_X1_0_Weights.DEFAULT
     model = create_model(weights=weights)
     in_features = model.fc.in_features
     model.fc = torch.nn.Linear(in_features, args.num_classes)

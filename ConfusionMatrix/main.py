@@ -15,7 +15,8 @@ import pandas as pd
 # from torchvision.models import resnet101 as create_model
 # from torchvision.models import resnet50 as create_model
 # from torchvision.models import mobilenet_v3_small as create_model
-from torchvision.models import mobilenet_v3_large as create_model
+# from torchvision.models import mobilenet_v3_large as create_model
+from torchvision.models import alexnet as create_model
 # from torchvision.models import vgg16_bn as create_model
 
 
@@ -132,7 +133,7 @@ if __name__ == '__main__':
     
     # *--> Config <--*
     # device = torch.device('cpu')
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
     print(f"On Remote: {device}")
     # print(f"On Local: {device}")
@@ -167,7 +168,7 @@ if __name__ == '__main__':
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/mobilenet-large/save_weights/best_model.pth"
+    model_weight_path = "./outputs/alexnet_pretrain-XHGNet/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)

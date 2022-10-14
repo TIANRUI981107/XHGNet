@@ -168,7 +168,7 @@ if __name__ == '__main__':
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/alexnet_pretrain-XHGNet/save_weights/best_model.pth"
+    model_weight_path = "./outputs/alexnet_non_pretrain-XHGNet/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
     model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
     model.to(device)

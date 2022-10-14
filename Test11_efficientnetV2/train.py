@@ -10,8 +10,8 @@ from my_dataset import MyDataSet
 from utils import read_split_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
 # Load torchvision models
 # from torchvision.models import efficientnet_v2_s as create_model, EfficientNet_V2_S_Weights
-from torchvision.models import efficientnet_v2_m as create_model, EfficientNet_V2_M_Weights
-# from torchvision.models import efficientnet_v2_l as create_model, EfficientNet_V2_L_Weights
+# from torchvision.models import efficientnet_v2_m as create_model, EfficientNet_V2_M_Weights
+from torchvision.models import efficientnet_v2_l as create_model, EfficientNet_V2_L_Weights
 
 
 def main(args):
@@ -53,7 +53,7 @@ def main(args):
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, pin_memory=True,
                                              num_workers=nw, collate_fn=val_dataset.collate_fn)
 
-    weights = EfficientNet_V2_M_Weights.DEFAULT
+    weights = EfficientNet_V2_L_Weights.DEFAULT
     model = create_model(weights=weights)
     in_features = model.classifier[-1].in_features
     model.classifier[-1] = torch.nn.Linear(in_features, args.num_classes, bias=True)
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_classes', type=int, default=68)
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--batch-size', type=int, default=64)
+    parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--wd', type=float, default=5e-2)
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
                         help='initial weights path')
     # whether freeze layers except cls-head
     parser.add_argument('--freeze-layers', type=bool, default=False)
-    parser.add_argument('--device', default='cuda:2', help='device id (i.e. 0 or 0,1 or cpu)')
+    parser.add_argument('--device', default='cuda:4', help='device id (i.e. 0 or 0,1 or cpu)')
 
     opt = parser.parse_args()
 

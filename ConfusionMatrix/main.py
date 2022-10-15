@@ -16,8 +16,8 @@ import pandas as pd
 # from torchvision.models import resnet50 as create_model
 # from torchvision.models import mobilenet_v3_small as create_model
 # from torchvision.models import mobilenet_v3_large as create_model
-from torchvision.models import alexnet as create_model
-# from torchvision.models import vgg16_bn as create_model
+# from torchvision.models import alexnet as create_model
+from torchvision.models import vgg16_bn as create_model
 
 
 class ConfusionMatrix(object):
@@ -27,6 +27,7 @@ class ConfusionMatrix(object):
     Note:
         prettytable is needed.
     """
+
     def __init__(self, num_classes: int, labels: list):
         self.matrix = np.zeros((num_classes, num_classes))
         self.num_classes = num_classes
@@ -54,16 +55,19 @@ class ConfusionMatrix(object):
             FP = np.sum(self.matrix[i, :]) - TP
             FN = np.sum(self.matrix[:, i]) - TP
             TN = np.sum(self.matrix) - TP - FP - FN
-            Precision = round(TP / (TP + FP), 3) if TP + FP != 0 else 0.
-            Recall = round(TP / (TP + FN), 3) if TP + FN != 0 else 0.
-            Specificity = round(TN / (TN + FP), 3) if TN + FP != 0 else 0.
+            Precision = round(TP / (TP + FP), 3) if TP + FP != 0 else 0.0
+            Recall = round(TP / (TP + FN), 3) if TP + FN != 0 else 0.0
+            Specificity = round(TN / (TN + FP), 3) if TN + FP != 0 else 0.0
             table.add_row([self.labels[i], Precision, Recall, Specificity])
             info_csv.append([self.labels[i], Precision, Recall, Specificity])
         print(table)
 
         try:
             # record info with Pandas
-            info_df = pd.DataFrame(np.array(info_csv), columns=['Classes', 'Precision', 'Recall', 'Specificity'])  
+            info_df = pd.DataFrame(
+                np.array(info_csv),
+                columns=["Classes", "Precision", "Recall", "Specificity"],
+            )
             new_info_df = pd.concat([info_df, acc_series], axis=1)
             new_info_df.to_csv("./metrices.csv", index=False)
             print("./info.csv saved successfully!")
@@ -73,7 +77,9 @@ class ConfusionMatrix(object):
 
     def plot(self):
         matrix = self.matrix
-        matrix_df = pd.DataFrame(matrix, index=self.labels, columns=self.labels)  # record CFmatrix with pandas
+        matrix_df = pd.DataFrame(
+            matrix, index=self.labels, columns=self.labels
+        )  # record CFmatrix with pandas
         matrix_df.to_csv("./confusion-matrix.csv", index=False)
 
         print(matrix)
@@ -85,9 +91,9 @@ class ConfusionMatrix(object):
         plt.yticks(range(self.num_classes), self.labels)
         # 显示colorbar
         plt.colorbar()
-        plt.xlabel('True Labels')
-        plt.ylabel('Predicted Labels')
-        plt.title('Confusion matrix')
+        plt.xlabel("True Labels")
+        plt.ylabel("Predicted Labels")
+        plt.title("Confusion matrix")
 
         # 在图中标注数量/概率信息
         thresh = matrix.max() / 2
@@ -97,13 +103,17 @@ class ConfusionMatrix(object):
                 info = int(matrix[y, x])
                 # if info > 100, dont print
                 if x != y and info != 0:
-                    plt.text(x, y, info,
-                             verticalalignment='center',
-                             horizontalalignment='center',
-                             color="white" if info > thresh else "black",
-                             fontsize=6)
+                    plt.text(
+                        x,
+                        y,
+                        info,
+                        verticalalignment="center",
+                        horizontalalignment="center",
+                        color="white" if info > thresh else "black",
+                        fontsize=6,
+                    )
         plt.tight_layout()
-        plt.savefig("./confusion-matrix.png", dpi=800, bbox_inches='tight')
+        plt.savefig("./confusion-matrix.png", dpi=800, bbox_inches="tight")
         # plt.show()
 
 
@@ -116,48 +126,52 @@ def plot_inference_nms_time(times):
     try:
         x = list(range(len(times)))
         fig, ax = plt.subplots()
-        plt.plot(x, times, label='Inference Time')
-        plt.xlabel('Images/it')
-        plt.ylabel('Time/s')
-        plt.title('Inference Time of Test Datasets')
+        plt.plot(x, times, label="Inference Time")
+        plt.xlabel("Images/it")
+        plt.ylabel("Time/s")
+        plt.title("Inference Time of Test Datasets")
         plt.xlim(0, len(times))
-        plt.legend(loc='best')
-        plt.savefig('./inference_time.png')
+        plt.legend(loc="best")
+        plt.savefig("./inference_time.png")
         plt.close()
         print("successful save inference_time curve!")
     except Exception as e:
         print(e)
 
 
-if __name__ == '__main__':
-    
+if __name__ == "__main__":
+
     # *--> Config <--*
     # device = torch.device('cpu')
-    device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:6" if torch.cuda.is_available() else "cpu")
 
     print(f"On Remote: {device}")
     # print(f"On Local: {device}")
 
-
     # remote path
     data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "data", "val-XHG"))
 
-    # local path 
+    # local path
     # data_root = os.path.abspath(os.path.join(os.getcwd(), "..", "outputs", "val-UXHG"))  # get data root path
 
     # image_path = os.path.join(data_root, "data_set", "flower_data")  # flower data set path
     assert os.path.exists(data_root), "data path {} does not exist.".format(data_root)
 
-    data_transform = transforms.Compose([transforms.CenterCrop((2048, 2048)),
-                                         transforms.Resize((224, 224)),
-                                         transforms.ToTensor(),
-                                         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    data_transform = transforms.Compose(
+        [
+            transforms.CenterCrop((2048, 2048)),
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ]
+    )
 
     validate_dataset = datasets.ImageFolder(root=data_root, transform=data_transform)
 
-
     batch_size = 1
-    validate_loader = torch.utils.data.DataLoader(validate_dataset, batch_size=batch_size, shuffle=False, num_workers=1)
+    validate_loader = torch.utils.data.DataLoader(
+        validate_dataset, batch_size=batch_size, shuffle=False, num_workers=1
+    )
 
     # Create model
     model = create_model()
@@ -168,15 +182,21 @@ if __name__ == '__main__':
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/alexnet_non_pretrain-XHGNet/save_weights/best_model.pth"
-    assert os.path.exists(model_weight_path), "cannot find {} file".format(model_weight_path)
-    model.load_state_dict(torch.load(model_weight_path, map_location=device), strict=True)
+    model_weight_path = "./outputs/vgg16_bn-XHGNet/save_weights/best_model.pth"
+    assert os.path.exists(model_weight_path), "cannot find {} file".format(
+        model_weight_path
+    )
+    model.load_state_dict(
+        torch.load(model_weight_path, map_location=device), strict=True
+    )
     model.to(device)
 
     # read class_indict
-    json_label_path = './outputs/class_indices-XHG.json'
-    assert os.path.exists(json_label_path), "cannot find {} file".format(json_label_path)
-    json_file = open(json_label_path, 'r')
+    json_label_path = "./outputs/class_indices-XHG.json"
+    assert os.path.exists(json_label_path), "cannot find {} file".format(
+        json_label_path
+    )
+    json_file = open(json_label_path, "r")
     class_indict = json.load(json_file)
 
     labels = [label for _, label in class_indict.items()]
@@ -213,4 +233,3 @@ if __name__ == '__main__':
         except Exception as e:
             print(e)
             exit(-1)
-

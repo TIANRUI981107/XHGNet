@@ -21,7 +21,8 @@ import pandas as pd
 # from torchvision.models import vgg19_bn as create_model
 # from torchvision.models import resnext50_32x4d as create_model
 # from torchvision.models import resnext101_32x8d as create_model
-from torchvision.models import resnext101_64x4d as create_model
+# from torchvision.models import resnext101_64x4d as create_model
+from torchvision.models import densenet121 as create_model
 
 
 class ConfusionMatrix(object):
@@ -179,14 +180,20 @@ if __name__ == "__main__":
 
     # Create model
     model = create_model()
-    in_features = model.fc.in_features
-    model.fc = torch.nn.Linear(in_features, 68)
+
+    # in_features = model.fc.in_features
+    # model.fc = torch.nn.Linear(in_features, 68)
+
     # in_features = model.classifier[-1].in_features
     # model.classifier[-1] = torch.nn.Linear(in_features, 68)
+
+    in_features = model.classifier.in_features
+    model.classifier = torch.nn.Linear(in_features, 68)
+
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/resnext101_64x4d-XHGNet/save_weights/best_model.pth"
+    model_weight_path = "./outputs/densenet_121-XHGNet/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

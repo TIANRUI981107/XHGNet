@@ -19,7 +19,8 @@ import pandas as pd
 # from torchvision.models import alexnet as create_model
 # from torchvision.models import vgg16_bn as create_model
 # from torchvision.models import vgg19_bn as create_model
-from torchvision.models import resnext50_32x4d as create_model
+# from torchvision.models import resnext50_32x4d as create_model
+from torchvision.models import resnext101_32x8d as create_model
 
 
 class ConfusionMatrix(object):
@@ -184,7 +185,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/resnext50_32x4d-XHGNet/save_weights/best_model.pth"
+    model_weight_path = "./outputs/resnext101_32x8d-XHGNet/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

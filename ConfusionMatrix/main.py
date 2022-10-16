@@ -35,7 +35,8 @@ import pandas as pd
 # from torchvision.models import shufflenet_v2_x1_5 as create_model
 # from torchvision.models import shufflenet_v2_x2_0 as create_model
 # from torchvision.models import squeezenet1_0 as create_model
-from torchvision.models import squeezenet1_1 as create_model
+# from torchvision.models import squeezenet1_1 as create_model
+from torchvision.models import efficientnet_v2_s as create_model
 
 
 class ConfusionMatrix(object):
@@ -198,21 +199,21 @@ if __name__ == "__main__":
     # in_features = model.fc.in_features
     # model.fc = torch.nn.Linear(in_features, 68)
 
-    # in_features = model.classifier[-1].in_features
-    # model.classifier[-1] = torch.nn.Linear(in_features, 68)
+    in_features = model.classifier[-1].in_features
+    model.classifier[-1] = torch.nn.Linear(in_features, 68)
 
     # in_features = model.classifier.in_features
     # model.classifier = torch.nn.Linear(in_features, 68)
 
-    in_features = model.classifier[1].in_channels
-    model.classifier[1] = torch.nn.Conv2d(
-        in_features, 68, kernel_size=(1, 1), stride=(1, 1)
-    )
+    # in_features = model.classifier[1].in_channels
+    # model.classifier[1] = torch.nn.Conv2d(
+    #     in_features, 68, kernel_size=(1, 1), stride=(1, 1)
+    # )
 
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/squeezenet1_1-1013/save_weights/best_model.pth"
+    model_weight_path = "./outputs/efficient_v2_s-1012/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

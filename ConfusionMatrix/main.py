@@ -34,7 +34,8 @@ import pandas as pd
 # from torchvision.models import shufflenet_v2_x1_0 as create_model
 # from torchvision.models import shufflenet_v2_x1_5 as create_model
 # from torchvision.models import shufflenet_v2_x2_0 as create_model
-from torchvision.models import squeezenet1_0 as create_model
+# from torchvision.models import squeezenet1_0 as create_model
+from torchvision.models import squeezenet1_1 as create_model
 
 
 class ConfusionMatrix(object):
@@ -211,7 +212,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/squeezenet1_0-1012/save_weights/best_model.pth"
+    model_weight_path = "./outputs/squeezenet1_1-1013/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

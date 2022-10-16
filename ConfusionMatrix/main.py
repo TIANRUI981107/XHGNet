@@ -28,7 +28,8 @@ import pandas as pd
 # from torchvision.models import densenet201 as create_model
 # from torchvision.models import regnet_x_16gf as create_model
 # from torchvision.models import regnet_x_400mf as create_model
-from torchvision.models import regnet_x_800mf as create_model
+# from torchvision.models import regnet_x_800mf as create_model
+from torchvision.models import googlenet as create_model
 
 
 class ConfusionMatrix(object):
@@ -187,6 +188,7 @@ if __name__ == "__main__":
     # Create model
     model = create_model()
 
+    print(model)
     in_features = model.fc.in_features
     model.fc = torch.nn.Linear(in_features, 68)
 
@@ -199,12 +201,12 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/regnet_x_800mf-XHGNet/save_weights/best_model.pth"
+    model_weight_path = "./outputs/inception_v2-XHGNet/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )
     model.load_state_dict(
-        torch.load(model_weight_path, map_location=device), strict=True
+        torch.load(model_weight_path, map_location=device), strict=False
     )
     model.to(device)
 

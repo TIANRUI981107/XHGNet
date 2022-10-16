@@ -32,7 +32,8 @@ import pandas as pd
 # from torchvision.models import googlenet as create_model fail
 # from torchvision.models import shufflenet_v2_x0_5 as create_model
 # from torchvision.models import shufflenet_v2_x1_0 as create_model
-from torchvision.models import shufflenet_v2_x1_5 as create_model
+# from torchvision.models import shufflenet_v2_x1_5 as create_model
+from torchvision.models import shufflenet_v2_x2_0 as create_model
 
 
 class ConfusionMatrix(object):
@@ -204,7 +205,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/shufflenet_v2_x1_5-1014/save_weights/best_model.pth"
+    model_weight_path = "./outputs/shufflenet_v2_x2_0-1015/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

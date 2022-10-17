@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     # load pretrain weights
     model_weight_path = (
-        "./outputs/swin_base_patch4_window12_384-XHGNet/save_weights/best_model.pth"
+        "./outputs/swin_base_patch4_window12_384-LRSchedule-XHGNet/save_weights/best_model.pth"
     )
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path

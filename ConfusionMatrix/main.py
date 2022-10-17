@@ -39,7 +39,8 @@ import pandas as pd
 # from torchvision.models import efficientnet_v2_s as create_model
 # from torchvision.models import efficientnet_v2_m as create_model
 # from torchvision.models import efficientnet_v2_l as create_model
-from model import mobile_vit_xx_small as create_model
+# from model import mobile_vit_xx_small as create_model
+from model import mobile_vit_x_small as create_model
 
 class ConfusionMatrix(object):
     """
@@ -215,7 +216,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/mobilevit_XXS-XHGNet/save_weights/best_model.pth"
+    model_weight_path = "./outputs/mobilevit_XS-XHGNet/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

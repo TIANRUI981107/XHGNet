@@ -29,6 +29,8 @@ import pandas as pd
 # from torchvision.models import regnet_x_16gf as create_model
 # from torchvision.models import regnet_x_400mf as create_model
 # from torchvision.models import regnet_x_800mf as create_model
+from torchvision.models import regnet_y_8gf as create_model
+
 # from torchvision.models import googlenet as create_model fail
 # from torchvision.models import shufflenet_v2_x0_5 as create_model
 # from torchvision.models import shufflenet_v2_x1_0 as create_model
@@ -41,7 +43,7 @@ import pandas as pd
 # from torchvision.models import efficientnet_v2_l as create_model
 # from model import mobile_vit_xx_small as create_model
 # from model import mobile_vit_x_small as create_model
-from model import mobile_vit_small as create_model
+# from model import mobile_vit_small as create_model
 
 
 class ConfusionMatrix(object):
@@ -201,11 +203,11 @@ if __name__ == "__main__":
     model = create_model()
 
     print(model)
-    # in_features = model.fc.in_features
-    # model.fc = torch.nn.Linear(in_features, 68)
+    in_features = model.fc.in_features
+    model.fc = torch.nn.Linear(in_features, 68)
 
-    in_features = model.classifier[-1].in_features
-    model.classifier[-1] = torch.nn.Linear(in_features, 68)
+    # in_features = model.classifier[-1].in_features
+    # model.classifier[-1] = torch.nn.Linear(in_features, 68)
 
     # in_features = model.classifier.in_features
     # model.classifier = torch.nn.Linear(in_features, 68)
@@ -218,7 +220,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/mobilevit_S-XHGNet/save_weights/best_model.pth"
+    model_weight_path = "./outputs/regnet_y_8gf-XHGNet/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

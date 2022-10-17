@@ -31,13 +31,15 @@ from torchvision.models import efficientnet_v2_s
 from torchvision.models import efficientnet_v2_m
 from torchvision.models import efficientnet_v2_l
 
-# from model import mobile_vit_xx_small as create_model
-# from model import mobile_vit_x_small as create_model
-# from model import mobile_vit_small as create_model
-# from model import convnext_base as create_model
+from mobilevit import mobile_vit_xx_small
+from mobilevit import mobile_vit_x_small
+from mobilevit import mobile_vit_small
+from convnext import convnext_tiny
+from convnext import convnext_base
+from swin_transformer_imple import swin_base_patch4_window12_384
 
 
-def create_torch_model(model_name: str, num_classes: int = 68):
+def create_torch_model(model_name: str, num_classes: int = 1000):
     model_dic = {
         "alexnet_p": alexnet(),
         "alexnet_np": alexnet(),
@@ -68,6 +70,12 @@ def create_torch_model(model_name: str, num_classes: int = 68):
         "regnet_x_400mf": regnet_x_400mf(),
         "regnet_x_800mf": regnet_x_800mf(),
         "regnet_y_8gf": regnet_y_8gf(),
+        "mobile_vit_xx_small": mobile_vit_xx_small(num_classes),
+        "mobile_vit_x_small": mobile_vit_x_small(num_classes),
+        "mobile_vit_small": mobile_vit_small(num_classes),
+        "convnext_tiny": convnext_tiny(num_classes),
+        "convnext_base": convnext_base(num_classes),
+        "swin_base_patch4_window12_384": swin_base_patch4_window12_384(num_classes),
     }
     net = model_dic[model_name]
     return model_name, net
@@ -111,9 +119,15 @@ if __name__ == "__main__":
         "regnet_x_400mf",
         "regnet_x_800mf",
         "regnet_y_8gf",
+        "mobile_vit_xx_small",
+        "mobile_vit_x_small",
+        "mobile_vit_small",
+        "convnext_tiny",
+        "convnext_base",
+        "swin_base_patch4_window12_384",
     ]
 
-    # Create model
+    # torchhub models
     for m in model_zoo:
         _, model = create_torch_model(model_name=m)
         # print(model)
@@ -126,6 +140,8 @@ if __name__ == "__main__":
         print(msg)
         with open("model_profile.txt", "a+") as af:
             af.write(f"{msg}\n")
+
+    # our imple. models
 
     # in_features = model.fc.in_features
     # model.fc = torch.nn.Linear(in_features, num_classes)

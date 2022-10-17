@@ -11,7 +11,8 @@ from prettytable import PrettyTable
 import pandas as pd
 
 # from model import convnext_tiny as create_model
-from model import convnext_base as create_model
+# from model import convnext_base as create_model
+from model import swin_base_patch4_window12_384 as create_model
 
 # from torchvision.models import resnet152 as create_model
 # from torchvision.models import resnet101 as create_model
@@ -221,7 +222,9 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/convnext_B-XHGNet/save_weights/best_model.pth"
+    model_weight_path = (
+        "./outputs/swin_base_patch4_window12_384-XHGNet/save_weights/best_model.pth"
+    )
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

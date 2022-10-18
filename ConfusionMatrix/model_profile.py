@@ -34,8 +34,13 @@ from torchvision.models import efficientnet_v2_l
 from mobilevit import mobile_vit_xx_small
 from mobilevit import mobile_vit_x_small
 from mobilevit import mobile_vit_small
+<<<<<<< HEAD
 from convnext import convnext_tiny
 from convnext import convnext_base
+=======
+from convnext_impl import convnext_tiny
+from convnext_impl import convnext_base
+>>>>>>> feat: model profile (35 models)
 from swin_transformer_imple import swin_base_patch4_window12_384
 
 
@@ -128,8 +133,13 @@ if __name__ == "__main__":
     ]
 
     # torchhub models
+<<<<<<< HEAD
     for m in model_zoo:
         _, model = create_torch_model(model_name=m)
+=======
+    for _ in model_zoo:
+        m, model = create_torch_model(model_name=_)
+>>>>>>> feat: model profile (35 models)
         # print(model)
 
         # Calculate the complexity of models

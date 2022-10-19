@@ -16,8 +16,9 @@ from utils import (
 )
 
 # Load torchvision models
-from torchvision.models import regnet_y_1_6gf as create_model, RegNet_Y_1_6GF_Weights
-# from torchvision.models import regnet_y_3_2gf as create_model, RegNet_Y_3_2GF_Weights
+# from torchvision.models import regnet_y_1_6gf as create_model, RegNet_Y_1_6GF_Weights
+from torchvision.models import regnet_y_3_2gf as create_model, RegNet_Y_3_2GF_Weights
+
 # from torchvision.models import regnet_y_8gf as create_model, RegNet_Y_8GF_Weights
 # from torchvision.models import regnet_y_16gf as create_model, RegNet_Y_16GF_Weights
 # from torchvision.models import regnet_y_32gf as create_model, RegNet_Y_32GF_Weights
@@ -100,7 +101,7 @@ def main(args):
         collate_fn=val_dataset.collate_fn,
     )
 
-    weights = RegNet_Y_1_6GF_Weights.DEFAULT
+    weights = RegNet_Y_3_2GF_Weights.DEFAULT
     model = create_model(weights=weights)
     print(model)
 

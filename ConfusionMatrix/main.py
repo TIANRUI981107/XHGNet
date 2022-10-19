@@ -46,9 +46,9 @@ import pandas as pd
 # from model import mobile_vit_x_small as create_model
 # from model import mobile_vit_small as create_model
 # from torchvision.models import regnet_x_1_6gf as create_model
-from torchvision.models import regnet_y_1_6gf as create_model
+# from torchvision.models import regnet_y_1_6gf as create_model
+from torchvision.models import regnet_x_400mf as create_model
 
-# from torchvision.models import regnet_x_400mf as create_model
 # from convnext_impl import convnext_tiny as create_model
 
 
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/regnet_y_1_6gf-1019/save_weights/best_model.pth"
+    model_weight_path = "./outputs/regnet_x_400mf-1019/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

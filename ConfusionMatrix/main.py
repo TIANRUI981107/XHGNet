@@ -12,8 +12,7 @@ import pandas as pd
 
 # from model import convnext_tiny as create_model
 # from model import convnext_base as create_model
-from model import swin_base_patch4_window12_384 as create_model
-
+# from swin_transformer_imple import swin_base_patch4_window12_384 as create_model
 # from torchvision.models import resnet152 as create_model
 # from torchvision.models import resnet101 as create_model
 # from torchvision.models import resnet50 as create_model
@@ -46,6 +45,11 @@ from model import swin_base_patch4_window12_384 as create_model
 # from model import mobile_vit_xx_small as create_model
 # from model import mobile_vit_x_small as create_model
 # from model import mobile_vit_small as create_model
+from torchvision.models import regnet_x_1_6gf as create_model
+
+# from torchvision.models import regnet_y_1_6gf as create_model
+# from torchvision.models import regnet_x_400mf as create_model
+# from convnext_impl import convnext_tiny as create_model
 
 
 class ConfusionMatrix(object):
@@ -222,9 +226,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = (
-        "./outputs/swin_base_patch4_window12_384-LRSchedule-XHGNet/save_weights/best_model.pth"
-    )
+    model_weight_path = "./outputs/regnet_x_1_6gf-1019/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

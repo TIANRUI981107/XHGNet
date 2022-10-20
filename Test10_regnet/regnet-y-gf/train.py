@@ -17,9 +17,9 @@ from utils import (
 
 # Load torchvision models
 # from torchvision.models import regnet_y_1_6gf as create_model, RegNet_Y_1_6GF_Weights
-from torchvision.models import regnet_y_3_2gf as create_model, RegNet_Y_3_2GF_Weights
+# from torchvision.models import regnet_y_3_2gf as create_model, RegNet_Y_3_2GF_Weights
+from torchvision.models import regnet_y_8gf as create_model, RegNet_Y_8GF_Weights
 
-# from torchvision.models import regnet_y_8gf as create_model, RegNet_Y_8GF_Weights
 # from torchvision.models import regnet_y_16gf as create_model, RegNet_Y_16GF_Weights
 # from torchvision.models import regnet_y_32gf as create_model, RegNet_Y_32GF_Weights
 # from torchvision.models import regnet_y_128gf as create_model, RegNet_Y_128GF_Weights
@@ -101,7 +101,7 @@ def main(args):
         collate_fn=val_dataset.collate_fn,
     )
 
-    weights = RegNet_Y_3_2GF_Weights.DEFAULT
+    weights = RegNet_Y_8GF_Weights.DEFAULT
     model = create_model(weights=weights)
     print(model)
 
@@ -151,6 +151,8 @@ def main(args):
         if best_acc < val_acc:
             torch.save(model.state_dict(), "save_weights/best_model.pth")
             best_acc = val_acc
+        if epoch > (args.epochs - 5):
+            torch.save(model.state_dict(), f"save_weights/last_model-{epoch}.pth")
 
 
 if __name__ == "__main__":

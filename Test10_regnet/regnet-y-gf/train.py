@@ -18,9 +18,8 @@ from utils import (
 # Load torchvision models
 # from torchvision.models import regnet_y_1_6gf as create_model, RegNet_Y_1_6GF_Weights
 # from torchvision.models import regnet_y_3_2gf as create_model, RegNet_Y_3_2GF_Weights
-from torchvision.models import regnet_y_8gf as create_model, RegNet_Y_8GF_Weights
-
-# from torchvision.models import regnet_y_16gf as create_model, RegNet_Y_16GF_Weights
+# from torchvision.models import regnet_y_8gf as create_model, RegNet_Y_8GF_Weights
+from torchvision.models import regnet_y_16gf as create_model, RegNet_Y_16GF_Weights
 # from torchvision.models import regnet_y_32gf as create_model, RegNet_Y_32GF_Weights
 # from torchvision.models import regnet_y_128gf as create_model, RegNet_Y_128GF_Weights
 
@@ -58,8 +57,8 @@ def main(args):
         ),
         "val": transforms.Compose(
             [
-                transforms.CenterCrop((2048, 2048)),
-                transforms.Resize((224, 224)),
+                transforms.Resize((256, 256)),
+                transforms.CenterCrop((224, 224)),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
             ]
@@ -101,7 +100,7 @@ def main(args):
         collate_fn=val_dataset.collate_fn,
     )
 
-    weights = RegNet_Y_8GF_Weights.DEFAULT
+    weights = RegNet_Y_16GF_Weights.DEFAULT
     model = create_model(weights=weights)
     print(model)
 
@@ -117,7 +116,6 @@ def main(args):
             else:
                 print("training {}".format(name))
 
-    # pg = [p for p in model.parameters() if p.requires_grad]
     pg = get_params_groups(model, weight_decay=args.wd)
     optimizer = optim.AdamW(pg, lr=args.lr, weight_decay=args.wd)
     lr_scheduler = create_lr_scheduler(
@@ -151,7 +149,7 @@ def main(args):
         if best_acc < val_acc:
             torch.save(model.state_dict(), "save_weights/best_model.pth")
             best_acc = val_acc
-        if epoch > (args.epochs - 5):
+        if epoch > (args.epochs - 6):
             torch.save(model.state_dict(), f"save_weights/last_model-{epoch}.pth")
 
 

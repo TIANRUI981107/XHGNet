@@ -18,9 +18,8 @@ from utils import (
 # Load torchvision models
 # from torchvision.models import regnet_x_400mf as create_model, RegNet_X_400MF_Weights
 # from torchvision.models import regnet_x_800mf as create_model, RegNet_X_800MF_Weights
-from torchvision.models import regnet_y_400mf as create_model, RegNet_Y_400MF_Weights
-
-# from torchvision.models import regnet_y_800mf as create_model, RegNet_Y_800MF_Weights
+# from torchvision.models import regnet_y_400mf as create_model, RegNet_Y_400MF_Weights
+from torchvision.models import regnet_y_800mf as create_model, RegNet_Y_800MF_Weights
 
 
 def main(args):
@@ -56,8 +55,8 @@ def main(args):
         ),
         "val": transforms.Compose(
             [
-                transforms.CenterCrop((2048, 2048)),
-                transforms.Resize((224, 224)),
+                transforms.Resize((256, 256)),
+                transforms.CenterCrop((224, 224)),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
             ]
@@ -99,7 +98,7 @@ def main(args):
         collate_fn=val_dataset.collate_fn,
     )
 
-    weights = RegNet_Y_400MF_Weights.DEFAULT
+    weights = RegNet_Y_800MF_Weights.DEFAULT
     model = create_model(weights=weights)
     print(model)
 
@@ -115,7 +114,6 @@ def main(args):
             else:
                 print("training {}".format(name))
 
-    # pg = [p for p in model.parameters() if p.requires_grad]
     pg = get_params_groups(model, weight_decay=args.wd)
     optimizer = optim.AdamW(pg, lr=args.lr, weight_decay=args.wd)
     lr_scheduler = create_lr_scheduler(
@@ -149,7 +147,7 @@ def main(args):
         if best_acc < val_acc:
             torch.save(model.state_dict(), "save_weights/best_model.pth")
             best_acc = val_acc
-        if epoch > (args.epochs - 5):
+        if epoch > (args.epochs - 6):
             torch.save(model.state_dict(), f"save_weights/last_model-{epoch}.pth")
 
 

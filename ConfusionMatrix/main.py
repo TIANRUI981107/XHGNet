@@ -28,10 +28,6 @@ import pandas as pd
 # from torchvision.models import densenet161 as create_model
 # from torchvision.models import densenet169 as create_model
 # from torchvision.models import densenet201 as create_model
-# from torchvision.models import regnet_x_16gf as create_model
-# from torchvision.models import regnet_x_400mf as create_model
-# from torchvision.models import regnet_x_800mf as create_model
-# from torchvision.models import regnet_y_8gf as create_model
 # from torchvision.models import googlenet as create_model fail
 # from torchvision.models import shufflenet_v2_x0_5 as create_model
 # from torchvision.models import shufflenet_v2_x1_0 as create_model
@@ -48,7 +44,27 @@ import pandas as pd
 # from torchvision.models import regnet_x_1_6gf as create_model
 # from torchvision.models import regnet_y_1_6gf as create_model
 # from torchvision.models import regnet_x_400mf as create_model
-from convnext_impl import convnext_tiny as create_model
+# from convnext_impl import convnext_tiny as create_model
+from convnext_impl import convnext_small as create_model
+
+# from convnext_impl import convnext_base as create_model
+# from convnext_impl import convnext_large as create_model
+# from convnext_impl import convnext_xlarge as create_model
+# from torchvision.models import regnet_y_1_6gf as create_model
+# from torchvision.models import regnet_y_3_2gf as create_model
+# from torchvision.models import regnet_y_8gf as create_model
+# from torchvision.models import regnet_y_16gf as create_model
+# from torchvision.models import regnet_y_32gf as create_model
+# from torchvision.models import regnet_y_128gf as create_model
+# from torchvision.models import regnet_x_1_6gf as create_model
+# from torchvision.models import regnet_x_3_2gf as create_model
+# from torchvision.models import regnet_x_8gf as create_model
+# from torchvision.models import regnet_x_16gf as create_model
+# from torchvision.models import regnet_x_32gf as create_model
+# from torchvision.models import regnet_y_400mf as create_model
+# from torchvision.models import regnet_y_800mf as create_model
+# from torchvision.models import regnet_x_400mf as create_model
+# from torchvision.models import regnet_x_800mf as create_model
 
 
 class ConfusionMatrix(object):
@@ -225,7 +241,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/convnext_T-1018/save_weights/best_model.pth"
+    model_weight_path = "./outputs/convnext_S-1018/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

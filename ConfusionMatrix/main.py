@@ -41,18 +41,15 @@ import pandas as pd
 # from model import mobile_vit_xx_small as create_model
 # from model import mobile_vit_x_small as create_model
 # from model import mobile_vit_small as create_model
-# from torchvision.models import regnet_x_1_6gf as create_model
-# from torchvision.models import regnet_y_1_6gf as create_model
-# from torchvision.models import regnet_x_400mf as create_model
 # from convnext_impl import convnext_tiny as create_model
 # from convnext_impl import convnext_small as create_model
 # from convnext_impl import convnext_base as create_model
 # from convnext_impl import convnext_large as create_model
-from convnext_impl import convnext_xlarge as create_model
-
+# from convnext_impl import convnext_xlarge as create_model
 # from torchvision.models import regnet_y_1_6gf as create_model
 # from torchvision.models import regnet_y_3_2gf as create_model
-# from torchvision.models import regnet_y_8gf as create_model
+from torchvision.models import regnet_y_8gf as create_model
+
 # from torchvision.models import regnet_y_16gf as create_model
 # from torchvision.models import regnet_y_32gf as create_model
 # from torchvision.models import regnet_y_128gf as create_model
@@ -241,7 +238,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/convnext_XL-1019/save_weights/best_model.pth"
+    model_weight_path = "./outputs/regnet_y_8gf-1022/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

@@ -61,9 +61,8 @@ import pandas as pd
 # from torchvision.models import regnet_y_800mf as create_model
 # from torchvision.models import regnet_x_400mf as create_model
 # from torchvision.models import regnet_x_800mf as create_model
-from resnext_impl import resnext50_32x4d as create_model
-
-# from se_resnext import se_resnet50 as create_model
+# from resnext_impl import resnext50_32x4d as create_model
+from se_resnext import se_resnet50 as create_model
 
 
 class ConfusionMatrix(object):
@@ -240,7 +239,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/resnext50_32x4d-1020/save_weights/best_model.pth"
+    model_weight_path = "./outputs/se_resnet50-1020/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

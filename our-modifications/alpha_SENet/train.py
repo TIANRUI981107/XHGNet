@@ -16,8 +16,14 @@ from utils import (
 )
 
 # Load models
-# from model import resnext50_32x4d as create_model
-from se_resnext import se_resnet50 as create_model
+from model.baseline import resnet50 as create_model
+from model.baseline import resnet101 as create_model
+from model.baseline import resnet152 as create_model
+from model.baseline import resnext50_32x4d as create_model
+from model.baseline import resnext101_32x8d as create_model
+from model.baseline import resnext101_64x4d as create_model
+
+# from model.se_resnet import se_resnet50 as create_model
 
 
 def main(args):

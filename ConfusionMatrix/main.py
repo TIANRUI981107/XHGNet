@@ -57,10 +57,11 @@ import pandas as pd
 # from torchvision.models import regnet_x_8gf as create_model
 # from torchvision.models import regnet_x_16gf as create_model
 # from torchvision.models import regnet_x_32gf as create_model
-# from torchvision.models import regnet_y_400mf as create_model
+from torchvision.models import regnet_y_400mf as create_model
+
 # from torchvision.models import regnet_y_800mf as create_model
 # from torchvision.models import regnet_x_400mf as create_model
-from torchvision.models import regnet_x_800mf as create_model
+# from torchvision.models import regnet_x_800mf as create_model
 
 
 class ConfusionMatrix(object):
@@ -237,7 +238,7 @@ if __name__ == "__main__":
     model.to(device=device)
 
     # load pretrain weights
-    model_weight_path = "./outputs/regnet_x_800mf-1019/save_weights/best_model.pth"
+    model_weight_path = "./outputs/regnet_y_400mf-1020/save_weights/best_model.pth"
     assert os.path.exists(model_weight_path), "cannot find {} file".format(
         model_weight_path
     )

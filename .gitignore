@@ -4,7 +4,7 @@ WinterNet/
 OutWinterNet/
 XHGNet/
 U-XHGNet/
-data/
+/data
 
 # Model Weights
 pretrained_weights/
@@ -19,6 +19,8 @@ runs/
 # Swap Files
 **/*.swp
 
+# Source Codes
+/pytorch-image-models
 
 # --> VSCODE-PYTHON <--
 .vscode/

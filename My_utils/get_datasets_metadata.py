@@ -90,12 +90,13 @@ def image_metadata(p_list, mark="train-val"):
 
 if __name__ == "__main__":
 
+    dataset_name = "mini-XHGNet"
     dataset_type = "train-val"
-    root = f"../data/XHGNet/{dataset_type}"
+    root = f"../data/{dataset_name}/{dataset_type}"
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
     f_path = get_img_path_ls(root)
 
     df_meta = image_metadata(f_path, mark=dataset_type)
-    df_meta.to_csv(f"../metadata-{dataset_type}.csv", index=False)
+    df_meta.to_csv(f"../metadata-{dataset_name}-{dataset_type}.csv", index=False)
 
     print("done!")

@@ -1,60 +1,58 @@
 import os
-import argparse
+from torchinfo import summary
 
 import torch
 import torch.optim as optim
-from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
+from torch.utils.tensorboard import SummaryWriter
 
-from my_dataset import MyDataSet
+from data_config import MyDataSet
 from utils import (
     read_split_data,
     create_lr_scheduler,
     get_params_groups,
     train_one_epoch,
     evaluate,
+    plot_data_loader_image,
 )
+from data_config.constants import SMALL_XHGNET_DEFAULT_MEAN, SMALL_XHGNET_DEFAULT_STD
+from config import DefaultConfig
 
 # Load models
-from model.baseline import resnet50 as create_model
-from model.baseline import resnet101 as create_model
-from model.baseline import resnet152 as create_model
-from model.baseline import resnext50_32x4d as create_model
-from model.baseline import resnext101_32x8d as create_model
-from model.baseline import resnext101_64x4d as create_model
+from timm.models.resnet import resnet50 as create_model
 
-# from model.se_resnet import se_resnet50 as create_model
+# from timm.models.resnet import resnet50d as create_model
+# from timm.models.resnet import resnet50t as create_model
+# from timm.models.resnet import resnet50_gn as create_model
+# from timm.models.resnet import resnetrs50 as create_model
+# from timm.models.resnet import seresnet50 as create_model
+# from timm.models.resnet import seresnext50_32x4d as create_model
 
 
 def main(args):
 
-    # ---> Device Config <---
-    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
-    print(f"using {device} device.")
+    device = torch.device(args.device) if torch.cuda.is_available() else "cpu"
+    print(f"using {device}")
+    writer = SummaryWriter()
 
-    if os.path.exists("./save_weights") is False:
-        os.makedirs("./save_weights")
-
-    tb_writer = SummaryWriter()
-
-    # ---> Prepare Datasets <---
     (
         train_images_path,
         train_images_label,
         val_images_path,
         val_images_label,
-    ) = read_split_data(args.data_path)
+    ) = read_split_data(args.train_data_root)
 
-    img_size = 224
     data_transform = {
         "train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(
-                    size=img_size, scale=(0.8, 0.83), ratio=(0.98, 1.02)
-                ),
+                # transforms.Resize(256),
+                # transforms.CenterCrop(args.resolution),
+                transforms.RandomResizedCrop(args.resolution),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+                transforms.Normalize(
+                    SMALL_XHGNET_DEFAULT_MEAN, SMALL_XHGNET_DEFAULT_STD
+                ),
             ]
         ),
         "val": transforms.Compose(
@@ -62,7 +60,9 @@ def main(args):
                 transforms.Resize(256),
                 transforms.CenterCrop(224),
                 transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+                transforms.Normalize(
+                    SMALL_XHGNET_DEFAULT_MEAN, SMALL_XHGNET_DEFAULT_STD
+                ),
             ]
         ),
     }
@@ -80,7 +80,7 @@ def main(args):
 
     batch_size = args.batch_size
     nw = min(
-        [os.cpu_count(), batch_size if batch_size > 1 else 0, 8]
+        [os.cpu_count(), batch_size if batch_size > 1 else 0, args.num_workers]
     )  # number of workers
     print("Using {} dataloader workers every process".format(nw))
 
@@ -102,30 +102,30 @@ def main(args):
         collate_fn=val_dataset.collate_fn,
     )
 
-    model = create_model(num_classes=1000, pretrained=True)
+    # plot_data_loader_image(train_loader)
 
-    in_features = model.fc.in_features
-    model.fc = torch.nn.Linear(in_features=in_features, out_features=68, bias=True)
-
-    print(model)
+    model = create_model(num_classes=args.num_classes, pretrained=False)
+    summary(model=model, input_size=(2, 3, 224, 224))
     model.to(device=device)
 
-    if args.freeze_layers:
-        for name, para in model.named_parameters():
-            # 除head外，其他权重全部冻结
-            if "head" not in name:
-                para.requires_grad_(False)
-            else:
-                print("training {}".format(name))
-
-    pg = get_params_groups(model, weight_decay=args.wd)
-    optimizer = optim.AdamW(pg, lr=args.lr, weight_decay=args.wd)
+    params_groups = get_params_groups(model, weight_decay=args.weight_decay)
+    optimizer = optim.SGD(
+        params_groups,
+        lr=args.learning_rate,
+        momentum=0.9,
+        weight_decay=args.weight_decay,
+        nesterov=True,
+    )
     lr_scheduler = create_lr_scheduler(
-        optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=1
+        optimizer,
+        len(train_loader),
+        args.max_epoch,
+        warmup=True,
+        warmup_epochs=args.warmup_epochs,
     )
 
     best_acc = 0.0
-    for epoch in range(args.epochs):
+    for epoch in range(args.max_epoch):
         # train
         train_loss, train_acc = train_one_epoch(
             model=model,
@@ -141,38 +141,33 @@ def main(args):
             model=model, data_loader=val_loader, device=device, epoch=epoch
         )
 
-        tags = ["train_loss", "train_acc", "val_loss", "val_acc", "learning_rate"]
-        tb_writer.add_scalar(tags[0], train_loss, epoch)
-        tb_writer.add_scalar(tags[1], train_acc, epoch)
-        tb_writer.add_scalar(tags[2], val_loss, epoch)
-        tb_writer.add_scalar(tags[3], val_acc, epoch)
-        tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
+        tags = [
+            "Loss/train",
+            "Loss/test",
+            "Accuracy/train",
+            "Accuracy/test",
+            "Learning_rate",
+        ]
+        writer.add_scalar(tags[0], train_loss, epoch)
+        writer.add_scalar(tags[1], val_loss, epoch)
+        writer.add_scalar(tags[2], train_acc, epoch)
+        writer.add_scalar(tags[3], val_acc, epoch)
+        writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
+        writer.close()
 
+        if os.path.exists("./checkpoints/save_weights") is False:
+            os.makedirs("./checkpoints/save_weights")
         if best_acc < val_acc:
-            torch.save(model.state_dict(), "save_weights/best_model.pth")
+            torch.save(model.state_dict(), "./checkpoints/save_weights/best_model.pth")
             best_acc = val_acc
-        if epoch > (args.epochs - 5):
-            torch.save(model.state_dict(), f"save_weights/last_model-{epoch}.pth")
+        if epoch > (args.max_epoch - 5):
+            torch.save(
+                model.state_dict(), f"./checkpoints/save_weights/last_model-{epoch}.pth"
+            )
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--num_classes", type=int, default=68)
-    parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--batch-size", type=int, default=32)
-    parser.add_argument("--lr", type=float, default=5e-4)
-    parser.add_argument("--wd", type=float, default=5e-2)
 
-    parser.add_argument("--data-path", type=str, default="../../data/XHGNet/train")
-
-    # load pretrain model on ImageNet, don't load if set to ""
-    parser.add_argument("--weights", type=str, default="", help="initial weights path")
-    # whether freeze layers except cls-head
-    parser.add_argument("--freeze-layers", type=bool, default=False)
-    parser.add_argument(
-        "--device", default="cuda:4", help="device id (i.e. 0 or 0,1 or cpu)"
-    )
-
-    opt = parser.parse_args()
+    opt = DefaultConfig()
 
     main(opt)

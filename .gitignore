@@ -21,6 +21,7 @@ runs/
 
 # Source Codes
 /pytorch-image-models
+/PyTorch_code
 
 # --> VSCODE-PYTHON <--
 .vscode/

@@ -645,6 +645,8 @@ class Bottleneck(nn.Module):
             self.alpha_attn_mode = create_attn(
                 attn_type="se", channels=width // alpha_attn_chunks
             )
+        else:
+            self.alpha_attn_chunks = None
 
     def zero_init_last(self):
         nn.init.zeros_(self.bn3.weight)
@@ -659,7 +661,7 @@ class Bottleneck(nn.Module):
         x = self.conv2(x)
         x = self.bn2(x)
 
-        if self.alpha_attn_chunks is not None:
+        if self.alpha_attn_chunks:
             branch_1, branch_2 = x.chunk(self.alpha_attn_chunks, dim=1)
             branch_1 = self.alpha_attn_mode(branch_1)
             x = torch.concat((branch_1, branch_2), dim=1)

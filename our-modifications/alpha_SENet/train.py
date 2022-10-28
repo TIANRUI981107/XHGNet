@@ -21,9 +21,9 @@ from data_config.constants import SMALL_XHGNET_DEFAULT_MEAN, SMALL_XHGNET_DEFAUL
 from config import DefaultConfig
 
 # Load models
-# from timm.models.resnet import resnet50 as create_model
-from timm.models.resnet import alpha_resnet50 as create_model
+from timm.models.resnet import resnet50 as create_model
 
+# from timm.models.resnet import alpha_resnet50 as create_model
 # from timm.models.resnet import resnet50d as create_model
 # from timm.models.resnet import resnet50t as create_model
 # from timm.models.resnet import resnet50_gn as create_model

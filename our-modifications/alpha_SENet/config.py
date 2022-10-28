@@ -9,7 +9,7 @@ class DefaultConfig(object):
     test_data_root = "../../data/small-XHGNet/val/"  # 测试集存放路径
     load_model_path = None  # 加载预训练的模型的路径，为None代表不加载
 
-    model = "alpha_resnet50"  # 使用的模型，名字必须与models/__init__.py中的名字一致
+    model = "resnet50"  # 使用的模型，名字必须与models/__init__.py中的名字一致
     debug_mode = True
 
     batch_size = 32  # batch size

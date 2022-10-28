@@ -600,6 +600,7 @@ class Bottleneck(nn.Module):
         aa_layer=None,
         drop_block=None,
         drop_path=None,
+        alpha_attn_chunks=None,
     ):
         super(Bottleneck, self).__init__()
 
@@ -639,6 +640,12 @@ class Bottleneck(nn.Module):
         self.dilation = dilation
         self.drop_path = drop_path
 
+        if alpha_attn_chunks is not None:
+            self.alpha_attn_chunks = alpha_attn_chunks
+            self.alpha_attn_mode = create_attn(
+                attn_type="se", channels=width // alpha_attn_chunks
+            )
+
     def zero_init_last(self):
         nn.init.zeros_(self.bn3.weight)
 
@@ -651,6 +658,12 @@ class Bottleneck(nn.Module):
 
         x = self.conv2(x)
         x = self.bn2(x)
+
+        if self.alpha_attn_chunks is not None:
+            branch_1, branch_2 = x.chunk(self.alpha_attn_chunks, dim=1)
+            branch_1 = self.alpha_attn_mode(branch_1)
+            x = torch.concat((branch_1, branch_2), dim=1)
+
         x = self.drop_block(x)
         x = self.act2(x)
         x = self.aa(x)
@@ -904,6 +917,7 @@ class ResNet(nn.Module):
         drop_block_rate=0.0,
         zero_init_last=True,
         block_args=None,
+        alpha_attn_chunks=None,
     ):
         super(ResNet, self).__init__()
         block_args = block_args or dict()
@@ -998,6 +1012,7 @@ class ResNet(nn.Module):
             aa_layer=aa_layer,
             drop_block_rate=drop_block_rate,
             drop_path_rate=drop_path_rate,
+            alpha_attn_chunks=alpha_attn_chunks,
             **block_args,
         )
         for stage in stage_modules:
@@ -1190,6 +1205,15 @@ def resnet50(pretrained=False, **kwargs):
     """Constructs a ResNet-50 model."""
     model_args = dict(block=Bottleneck, layers=[3, 4, 6, 3], **kwargs)
     return _create_resnet("resnet50", pretrained, **model_args)
+
+
+@register_model
+def alpha_resnet50(pretrained=False, **kwargs):
+    """Constructs a alpha_ResNet-50 model."""
+    model_args = dict(
+        block=Bottleneck, layers=[3, 4, 6, 3], alpha_attn_chunks=2, **kwargs
+    )
+    return _create_resnet("alpha_resnet50", pretrained, **model_args)
 
 
 @register_model

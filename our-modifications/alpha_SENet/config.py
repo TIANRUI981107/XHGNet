@@ -1,3 +1,4 @@
+import time
 import warnings
 import torch as t
 
@@ -8,7 +9,8 @@ class DefaultConfig(object):
     test_data_root = "../../data/small-XHGNet/val/"  # 测试集存放路径
     load_model_path = None  # 加载预训练的模型的路径，为None代表不加载
 
-    model = "resnet50"  # 使用的模型，名字必须与models/__init__.py中的名字一致
+    model = "alpha_resnet50"  # 使用的模型，名字必须与models/__init__.py中的名字一致
+    debug_mode = True
 
     batch_size = 32  # batch size
     use_gpu = True  # user GPU or not
@@ -23,12 +25,11 @@ class DefaultConfig(object):
     max_epoch = 100
     warmup_epochs = 5
     learning_rate = (
-        1e-1 / batch_size
-    )  # ResNet-RS=warmup-to-MAX(0.1/BS), then COSINE-DECAY-TO-ZERO
-    weight_decay = (
-        0  # DEFAULT=1e-4, decrease to ResNet-RS=4e-5 when using more regularization
-    )
+        1e-1 * batch_size / 256
+    )  # `bag-of-tricks`: warmup-to-MAX(0.1 * batch_size / 256), then COSINE-DECAY-TO-ZERO
+    weight_decay = 4e-5  # `ResNet-RS impl.`: DEFAULT=1e-4, decrease to 4e-5 when using more regularization
     resolution = 224  # Different Resolution are: [128, 160, 224, 320]
+    time_stamp = time.strftime("%m_%d-%H_%M_%S")
 
     def _parse(self, kwargs):
         """

@@ -27,10 +27,9 @@ from config import DefaultConfig
 # from timm.models.resnet import resnet50t as create_model
 # from timm.models.resnet import resnet50_gn as create_model
 # from timm.models.resnet import resnext50_32x4d as create_model
-from timm.models.resnet import alpha_resnext50_32x4d as create_model
+# from timm.models.resnet import alpha_resnext50_32x4d as create_model
+from timm.models.resnet import seresnet50 as create_model
 
-# from timm.models.resnet import resnetrs50 as create_model
-# from timm.models.resnet import seresnet50 as create_model
 # from timm.models.resnet import seresnext50_32x4d as create_model
 
 

@@ -1211,7 +1211,7 @@ def resnet50(pretrained=False, **kwargs):
 
 @register_model
 def alpha_resnet50(pretrained=False, **kwargs):
-    """Constructs a alpha_ResNet-50 model."""
+    """Constructs an alpha_ResNet-50 model."""
     model_args = dict(
         block=Bottleneck, layers=[3, 4, 6, 3], alpha_attn_chunks=2, **kwargs
     )
@@ -1372,6 +1372,20 @@ def resnext50_32x4d(pretrained=False, **kwargs):
     """Constructs a ResNeXt50-32x4d model."""
     model_args = dict(
         block=Bottleneck, layers=[3, 4, 6, 3], cardinality=32, base_width=4, **kwargs
+    )
+    return _create_resnet("resnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def alpha_resnext50_32x4d(pretrained=False, **kwargs):
+    """Constructs an alpha_ResNeXt50-32x4d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        alpha_attn_chunks=2,
+        **kwargs,
     )
     return _create_resnet("resnext50_32x4d", pretrained, **model_args)
 

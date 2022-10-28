@@ -9,13 +9,13 @@ class DefaultConfig(object):
     test_data_root = "../../data/small-XHGNet/val/"  # 测试集存放路径
     load_model_path = None  # 加载预训练的模型的路径，为None代表不加载
 
-    model = "resnet50"  # 使用的模型，名字必须与models/__init__.py中的名字一致
+    model = "alpha_resnext50_32x4d"  # 使用的模型，名字必须与models/__init__.py中的名字一致
     debug_mode = True
 
     batch_size = 32  # batch size
     use_gpu = True  # user GPU or not
     num_workers = 8  # how many workers for loading data
-    device = "cuda:4"
+    device = "cuda:5"
 
     debug_file = "/tmp/debug"  # if os.path.exists(debug_file): enter ipdb
     result_file = "result.csv"

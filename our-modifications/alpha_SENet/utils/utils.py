@@ -16,6 +16,10 @@ import numpy as np
 
 def read_split_data(root: str, val_rate: float = 0.4):
 
+    assert (
+        val_rate >= 0 and val_rate < 1
+    ), f"val_rate must in interval [0, 1), got {val_rate} instead."
+
     # pseudo-random seed for reproductivity
     random.seed(0)
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
@@ -67,10 +71,13 @@ def read_split_data(root: str, val_rate: float = 0.4):
                 train_images_label.append(image_index)
 
     print("{} images were found in the dataset.".format(sum(every_class_num)))
-    print("{} images for training.".format(len(train_images_path)))
-    print("{} images for validation.".format(len(val_images_path)))
-    assert len(train_images_path) > 0, "not find data for train."
-    assert len(val_images_path) > 0, "not find data for eval"
+    if val_rate == 0:
+        print("{} images for testing.".format(len(train_images_path)))
+    else:
+        print("{} images for training.".format(len(train_images_path)))
+        print("{} images for validation.".format(len(val_images_path)))
+        assert len(train_images_path) > 0, "not find data for train."
+        assert len(val_images_path) > 0, "not find data for eval"
 
     # plot `Classes_Distr.png` if set true
     plot_image = False
@@ -95,9 +102,8 @@ def read_split_data(root: str, val_rate: float = 0.4):
             print(e)
             exit(-1)
 
-    # save `class_distributions.csv` if set True
-    save_csv = True
-    if save_csv:
+    # save `class_distributions.csv` if in training mode
+    if val_rate:
         try:
             # save in pandas.Series
             cls_index_series = pd.Series(image_class, name="Class")
@@ -113,7 +119,10 @@ def read_split_data(root: str, val_rate: float = 0.4):
             print(e)
             exit(-1)
 
-    return train_images_path, train_images_label, val_images_path, val_images_label
+    if val_rate == 0:
+        return train_images_path, train_images_label
+    else:
+        return train_images_path, train_images_label, val_images_path, val_images_label
 
 
 def plot_data_loader_image(data_loader):

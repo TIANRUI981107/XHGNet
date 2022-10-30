@@ -15,6 +15,7 @@ save_weights/
 # Predictions and Outputs
 outputs/ 
 runs/
+hard_example_mining/
 
 # Swap Files
 **/*.swp

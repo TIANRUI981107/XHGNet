@@ -12,22 +12,34 @@ class MyDataSet(Dataset):
     def __len__(self):
         return len(self.images_path)
 
-    def __getitem__(self, item):
-        img = Image.open(self.images_path[item])
+    def __getitem__(self, idx):
+        path = self.images_path[idx]
+        filename = self.images_path[idx].split("/")[-1]
+
+        img = Image.open(path)
         # check whether RGB images format
         if img.mode != "RGB":
-            raise ValueError("image: {} isn't RGB mode.".format(self.images_path[item]))
-        label = self.images_class[item]
+            raise ValueError("image: {} isn't RGB mode.".format(path))
+        label = self.images_class[idx]
 
         if self.transform is not None:
             img = self.transform(img)
 
-        return img, label
+        batches = (
+            img,
+            label,
+            path,
+            filename,
+        )
+
+        return batches
 
     @staticmethod
     def collate_fn(batch):
-        images, labels = tuple(zip(*batch))
+        # FIXME: bugs here
+
+        images, labels, img_paths, filenames = tuple(zip(*batch))
 
         images = torch.stack(images, dim=0)
         labels = torch.as_tensor(labels)
-        return images, labels
+        return images, labels, img_paths, filenames

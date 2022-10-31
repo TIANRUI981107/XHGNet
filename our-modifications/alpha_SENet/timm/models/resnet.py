@@ -661,10 +661,14 @@ class Bottleneck(nn.Module):
         x = self.conv2(x)
         x = self.bn2(x)
 
-        if self.alpha_attn_chunks:
+        if self.alpha_attn_chunks == 2:
             branch_1, branch_2 = x.chunk(self.alpha_attn_chunks, dim=1)
             branch_1 = self.alpha_attn_mode(branch_1)
             x = torch.concat((branch_1, branch_2), dim=1)
+        elif self.alpha_attn_chunks == 1:
+            x = self.alpha_attn_mode(x)
+        else:
+            assert self.alpha_attn_chunks > 2, "alpha_attn_chunks is either 1 or 2."
 
         x = self.drop_block(x)
         x = self.act2(x)
@@ -1385,6 +1389,20 @@ def alpha_resnext50_32x4d(pretrained=False, **kwargs):
         cardinality=32,
         base_width=4,
         alpha_attn_chunks=2,
+        **kwargs,
+    )
+    return _create_resnet("resnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def alpha_2_0_resnext50_32x4d(pretrained=False, **kwargs):
+    """Constructs an alpha_ResNeXt50-32x4d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        alpha_attn_chunks=1,
         **kwargs,
     )
     return _create_resnet("resnext50_32x4d", pretrained, **model_args)

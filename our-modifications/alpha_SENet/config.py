@@ -13,15 +13,12 @@ class DefaultConfig(object):
 
     # commen config
     model = [
-        "seresnext50_32x4d",
-        "alpha_resnet50",
-        # "alpha_resnet50",
-        "alpha_resnext50_32x4d",
+        "alpha_2_0_resnext50_32x4d",
     ]  # 使用的模型，名字必须与models/__init__.py中的名字一致
 
-    batch_size = 1
+    batch_size = 32
     use_gpu = True
-    num_workers = 0
+    num_workers = 8
     device = "cuda:4"
     num_classes = 34
     resolution = 224  # Different Resolution are: [128, 160, 224, 320, 384]
@@ -40,7 +37,6 @@ class DefaultConfig(object):
     load_model_path = [
         "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/seresnext50_32x4d-10_28-23_21_31/best_model.pth",
         "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_resnet50-10_28-21_41_10/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_resnet50-10_29-09_24_36/best_model.pth",
         "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_resnext50_32x4d-10_28-22_31_37/best_model.pth",
     ]
 

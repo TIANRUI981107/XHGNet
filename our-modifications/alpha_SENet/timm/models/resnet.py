@@ -667,8 +667,6 @@ class Bottleneck(nn.Module):
             x = torch.concat((branch_1, branch_2), dim=1)
         elif self.alpha_attn_chunks == 1:
             x = self.alpha_attn_mode(x)
-        else:
-            assert self.alpha_attn_chunks > 2, "alpha_attn_chunks is either 1 or 2."
 
         x = self.drop_block(x)
         x = self.act2(x)
@@ -1434,6 +1432,34 @@ def resnext101_32x4d(pretrained=False, **kwargs):
 
 
 @register_model
+def alpha_1_1_resnext101_32x4d(pretrained=False, **kwargs):
+    """Constructs a ResNeXt-101 32x4d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        cardinality=32,
+        base_width=4,
+        alpha_attn_chunks=2,
+        **kwargs,
+    )
+    return _create_resnet("resnext101_32x4d", pretrained, **model_args)
+
+
+@register_model
+def alpha_2_0_resnext101_32x4d(pretrained=False, **kwargs):
+    """Constructs a ResNeXt-101 32x4d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        cardinality=32,
+        base_width=4,
+        alpha_attn_chunks=1,
+        **kwargs,
+    )
+    return _create_resnet("resnext101_32x4d", pretrained, **model_args)
+
+
+@register_model
 def resnext101_32x8d(pretrained=False, **kwargs):
     """Constructs a ResNeXt-101 32x8d model."""
     model_args = dict(
@@ -1443,10 +1469,66 @@ def resnext101_32x8d(pretrained=False, **kwargs):
 
 
 @register_model
+def alpha_1_1_resnext101_32x8d(pretrained=False, **kwargs):
+    """Constructs a ResNeXt-101 32x8d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        cardinality=32,
+        base_width=8,
+        alpha_attn_chunks=2,
+        **kwargs,
+    )
+    return _create_resnet("resnext101_32x8d", pretrained, **model_args)
+
+
+@register_model
+def alpha_2_0_resnext101_32x8d(pretrained=False, **kwargs):
+    """Constructs a ResNeXt-101 32x8d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        cardinality=32,
+        base_width=8,
+        alpha_attn_chunks=1,
+        **kwargs,
+    )
+    return _create_resnet("resnext101_32x8d", pretrained, **model_args)
+
+
+@register_model
 def resnext101_64x4d(pretrained=False, **kwargs):
     """Constructs a ResNeXt101-64x4d model."""
     model_args = dict(
         block=Bottleneck, layers=[3, 4, 23, 3], cardinality=64, base_width=4, **kwargs
+    )
+    return _create_resnet("resnext101_64x4d", pretrained, **model_args)
+
+
+@register_model
+def alpha_1_1_resnext101_64x4d(pretrained=False, **kwargs):
+    """Constructs a ResNeXt101-64x4d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        cardinality=64,
+        base_width=4,
+        alpha_attn_chunks=2,
+        **kwargs,
+    )
+    return _create_resnet("resnext101_64x4d", pretrained, **model_args)
+
+
+@register_model
+def alpha_2_0_resnext101_64x4d(pretrained=False, **kwargs):
+    """Constructs a ResNeXt101-64x4d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        cardinality=64,
+        base_width=4,
+        alpha_attn_chunks=1,
+        **kwargs,
     )
     return _create_resnet("resnext101_64x4d", pretrained, **model_args)
 
@@ -2052,6 +2134,20 @@ def seresnext101d_32x8d(pretrained=False, **kwargs):
         **kwargs,
     )
     return _create_resnet("seresnext101d_32x8d", pretrained, **model_args)
+
+
+@register_model
+def seresnext101_64x4d(pretrained=False, **kwargs):
+    """Constructs a SEResNeXt101-64x4d model."""
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        cardinality=64,
+        base_width=4,
+        block_args=dict(attn_layer="se"),
+        **kwargs,
+    )
+    return _create_resnet("seresnext101_64x4d", pretrained, **model_args)
 
 
 @register_model

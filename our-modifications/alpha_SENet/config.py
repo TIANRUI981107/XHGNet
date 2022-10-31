@@ -13,7 +13,18 @@ class DefaultConfig(object):
 
     # commen config
     model = [
-        "alpha_2_0_resnext50_32x4d",
+        "resnext101_32x4d",
+        "alpha_1_1_resnext101_32x4d",
+        "alpha_2_0_resnext101_32x4d",
+        "seresnext101_32x4d",
+        # "resnext101_32x8d",
+        # "alpha_1_1_resnext101_32x8d",
+        # "alpha_2_0_resnext101_32x8d",
+        # "seresnext101_32x8d",
+        # "resnext101_64x4d",
+        # "alpha_1_1_resnext101_64x4d",
+        # "alpha_2_0_resnext101_64x4d",
+        # "seresnext101_64x4d",
     ]  # 使用的模型，名字必须与models/__init__.py中的名字一致
 
     batch_size = 32
@@ -35,9 +46,7 @@ class DefaultConfig(object):
 
     # test config
     load_model_path = [
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/seresnext50_32x4d-10_28-23_21_31/best_model.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_resnet50-10_28-21_41_10/best_model.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_resnext50_32x4d-10_28-22_31_37/best_model.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_2_0_resnext50_32x4d-10_30-20_42_07/best_model.pth",
     ]
 
     def _parse(self, kwargs):

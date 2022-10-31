@@ -178,11 +178,11 @@ def main(**kwargs):
                         writer.add_histogram(
                             "fc", model.fc.weight, global_step=train_iteration
                         )
-                        writer.add_histogram(
-                            "conv5_3-SE_fc2",
-                            model.layer4[-1].alpha_attn_mode.fc2.weight,
-                            global_step=train_iteration,
-                        )
+                    #                        writer.add_histogram(
+                    #                            "conv5_3-SE_fc2",
+                    #                            model.layer4[-1].alpha_attn_mode.fc2.weight,
+                    #                            global_step=train_iteration,
+                    #                        )
                     writer.add_scalar(
                         tags[0], loss.detach(), global_step=train_iteration
                     )

@@ -36,7 +36,7 @@ class DefaultConfig(object):
     if gpu_mode == 0:
         device = t.device("cpu")
     elif gpu_mode == 1:
-        device = t.device("cuda:5")
+        device = t.device("cuda:3")
     else:
         # TODO: update DDP training script
         device = t.device("cuda")
@@ -58,7 +58,7 @@ class DefaultConfig(object):
 
     # train config
     debug_mode = True
-    max_epoch = 80
+    max_epoch = 60
     learning_rate = (
         1e-1 * batch_size / 256
     )  # `bag-of-tricks`: warmup-to-MAX(0.1 * batch_size / 256), then COSINE-DECAY-TO-ZERO

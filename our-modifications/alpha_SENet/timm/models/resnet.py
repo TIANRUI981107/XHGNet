@@ -1379,7 +1379,7 @@ def resnext50_32x4d(pretrained=False, **kwargs):
 
 
 @register_model
-def alpha_resnext50_32x4d(pretrained=False, **kwargs):
+def alpha_1_1_resnext50_32x4d(pretrained=False, **kwargs):
     """Constructs an alpha_ResNeXt50-32x4d model."""
     model_args = dict(
         block=Bottleneck,

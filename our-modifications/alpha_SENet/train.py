@@ -23,14 +23,15 @@ import timm.models.resnet as models
 def main(**kwargs):
     opt._parse(kwargs)
 
-    for idx in range(len(opt.model)):
+    for model_idx in opt.model:
+
         # showing running model
-        model_idx = opt.model[idx]
-        print(f"\nRUNNING: {model_idx}")
+        print(f"RUNNING: {model_idx}")
+        print(f"USE_GPUS: {opt.gpu_mode}")
 
         # prepare device
         device = t.device(
-            opt.device if (t.cuda.is_available() and opt.use_gpu) else "cpu"
+            opt.device if (t.cuda.is_available() and opt.gpu_mode >= 1) else "cpu"
         )
         print(f"On Server: {device}")
         t.backends.cudnn.benchmark = True
@@ -115,13 +116,16 @@ def main(**kwargs):
             weight_decay=opt.weight_decay,
             nesterov=True,
         )
-        lr_scheduler = create_lr_scheduler(
-            optimizer,
-            len(train_loader),
-            opt.max_epoch,
-            warmup=True,
-            warmup_epochs=opt.warmup_epochs,
-        )
+
+        # use learning rate scheduler
+        if opt.use_lr_scheduler:
+            lr_scheduler = create_lr_scheduler(
+                optimizer,
+                len(train_loader),
+                opt.max_epoch,
+                warmup=True,
+                warmup_epochs=opt.warmup_epochs,
+            )
 
         # training and evaluation
         best_acc = 0.0
@@ -145,7 +149,8 @@ def main(**kwargs):
                 loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
-                lr_scheduler.step()
+                if opt.use_lr_scheduler:
+                    lr_scheduler.step()
                 accu_loss += loss.detach()
                 train_loader_bar.desc = (
                     "[train epoch {}] loss: {:.3f}, acc: {:.3f}, lr: {:.5f}".format(

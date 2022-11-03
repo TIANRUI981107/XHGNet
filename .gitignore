@@ -23,6 +23,7 @@ hard_example_mining/
 # Source Codes
 /pytorch-image-models
 /PyTorch_code
+/deep-learning-for-image-processing
 
 # --> VSCODE-PYTHON <--
 .vscode/

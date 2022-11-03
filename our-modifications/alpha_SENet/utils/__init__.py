@@ -6,3 +6,11 @@ from .utils import (
     evaluate,
     plot_data_loader_image,
 )
+
+from .distributed_utils import (
+    dist,
+    init_distributed_mode,
+    cleanup,
+    is_main_process,
+    reduce_value,
+)

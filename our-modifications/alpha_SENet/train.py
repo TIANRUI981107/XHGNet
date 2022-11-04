@@ -17,7 +17,8 @@ from utils import (
 from config import opt
 
 # Load models
-import timm.models.resnet as models
+# import timm.models.resnet as models
+import timm.models.densenet as models
 
 
 def main(**kwargs):
@@ -181,7 +182,7 @@ def main(**kwargs):
                         )
                     if train_iteration % 1000 == 0:
                         writer.add_histogram(
-                            "fc", model.fc.weight, global_step=train_iteration
+                            "fc", model.classifier.weight, global_step=train_iteration
                         )
                     #                        writer.add_histogram(
                     #                            "conv5_3-SE_fc2",

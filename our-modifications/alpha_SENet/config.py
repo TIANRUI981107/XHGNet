@@ -13,10 +13,11 @@ class DefaultConfig(object):
 
     # commen config
     model = [
-        "resnext50_32x4d",
-        "alpha_1_1_resnext50_32x4d",
-        "alpha_2_0_resnext50_32x4d",
-        "seresnext50_32x4d",
+        "densenet161",
+        # "resnext50_32x4d",
+        # "alpha_1_1_resnext50_32x4d",
+        # "alpha_2_0_resnext50_32x4d",
+        # "seresnext50_32x4d",
         # "resnext101_32x4d",
         # "alpha_1_1_resnext101_32x4d",
         # "alpha_2_0_resnext101_32x4d",
@@ -36,7 +37,7 @@ class DefaultConfig(object):
     if gpu_mode == 0:
         device = t.device("cpu")
     elif gpu_mode == 1:
-        device = t.device("cuda:3")
+        device = t.device("cuda:6")
     else:
         # TODO: update DDP training script
         device = t.device("cuda")
@@ -58,7 +59,7 @@ class DefaultConfig(object):
 
     # train config
     debug_mode = True
-    max_epoch = 60
+    max_epoch = 80
     learning_rate = (
         1e-1 * batch_size / 256
     )  # `bag-of-tricks`: warmup-to-MAX(0.1 * batch_size / 256), then COSINE-DECAY-TO-ZERO

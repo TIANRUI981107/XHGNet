@@ -1,0 +1,2 @@
+sse_rd116_ada_resnet101dd: num_classes=11, Params: 42.68M, FLOPs: 8.11G
+sse_rd116_ada_resnet152dd: num_classes=11, Params: 58.38M, FLOPs: 11.85G

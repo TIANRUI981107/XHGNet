@@ -13,22 +13,34 @@ from utils import (
     read_split_data,
     create_lr_scheduler,
     get_params_groups,
+    EarlyStopping,
 )
 from config import opt
 
 # Load models
 # import timm.models.resnet as models
-import timm.models.densenet as models
+# import timm.models.densenet as models
+# import timm.models.efficientnet as models
+# import timm.models.regnet as models
+# import timm.models.convnext as models
+import timm.models.mobilenetv3 as models
 
 
 def main(**kwargs):
     opt._parse(kwargs)
 
-    for model_idx in opt.model:
+    for idx, model_idx in enumerate(opt.model):
 
         # showing running model
         print(f"RUNNING: {model_idx}")
         print(f"USE_GPUS: {opt.gpu_mode}")
+        print(f"PRETRAINED: {opt.pretrain}")
+        print(f"OPTIMIZER: {opt.optimizer}")
+        print(
+            f"LOADING: {opt.load_model_path[idx] if opt.continue_training else opt.continue_training}"
+        )
+        print(f"VAL_RATE: {opt.val_rate}")
+        print(f"EARLYSTOP: {opt.use_earlystop}")
 
         # prepare device
         device = t.device(
@@ -41,7 +53,12 @@ def main(**kwargs):
         data_transform = {
             "train": T.Compose(
                 [
-                    T.RandomResizedCrop(opt.resolution),
+                    # scale: lower&upper ratio bound of original image, [2048/2448]=0.83
+                    # ratio: lower&upper aspect ratio of crop area,
+                    T.RandomResizedCrop(
+                        size=opt.resolution, scale=(0.5, 0.8), ratio=(1, 1)
+                    ),
+                    # T.RandomResizedCrop(opt.resolution),
                     T.RandomHorizontalFlip(),
                     T.RandomVerticalFlip(),
                     T.ToTensor(),
@@ -63,7 +80,7 @@ def main(**kwargs):
             train_images_label,
             val_images_path,
             val_images_label,
-        ) = read_split_data(opt.train_data_root, val_rate=0.4)
+        ) = read_split_data(opt.train_data_root, val_rate=opt.val_rate)
 
         train_dataset = MyDataSet(
             images_path=train_images_path,
@@ -102,21 +119,42 @@ def main(**kwargs):
 
         # create model
         model = getattr(models, model_idx)(
-            num_classes=opt.num_classes, pretrained=False
+            num_classes=opt.num_classes, pretrained=opt.pretrain
         )
         # print(model)
         model.to(device=device)
 
+        # load model weights
+        if opt.continue_training:
+            model_weight_path = opt.load_model_path[idx]
+            assert os.path.exists(model_weight_path), "cannot find {} file".format(
+                model_weight_path
+            )
+
+            model.load_state_dict(
+                t.load(model_weight_path, map_location=device), strict=True
+            )
+            model.to(device)
+
         # loss func, optimizer and lr scheduler
         loss_function = t.nn.CrossEntropyLoss()
         params_groups = get_params_groups(model, weight_decay=opt.weight_decay)
-        optimizer = optim.SGD(
-            params_groups,
-            lr=opt.learning_rate,
-            momentum=0.9,
-            weight_decay=opt.weight_decay,
-            nesterov=True,
-        )
+        if opt.optimizer == "SGD":
+            optimizer = getattr(optim, opt.optimizer)(
+                params_groups,
+                lr=opt.learning_rate,
+                momentum=0.9,
+                weight_decay=opt.weight_decay,
+                nesterov=True,
+            )
+        elif opt.optimizer == "AdamW":
+            optimizer = getattr(optim, opt.optimizer)(
+                params_groups,
+                lr=opt.learning_rate,
+                weight_decay=opt.weight_decay,
+            )
+        else:
+            raise EnvironmentError("optimizer can either be SGD or AdamW.")
 
         # use learning rate scheduler
         if opt.use_lr_scheduler:
@@ -132,7 +170,13 @@ def main(**kwargs):
         best_acc = 0.0
         train_iteration = 0
         val_iteration = 0
-        writer = SummaryWriter(f"runs/{model_idx}-{opt.time_stamp}")  # init tensorboard
+
+        dst_str = f"{opt.time_stamp}-{model_idx}-LR_{opt.use_lr_scheduler}_{opt.learning_rate}-BS_{opt.batch_size}-WD_{opt.weight_decay}"
+        writer = SummaryWriter(f"runs/{dst_str}")  # init tensorboard
+
+        if opt.use_earlystop:
+            earlystop = EarlyStopping(patience=opt.earlystop_patience)  # init earlystop
+
         for epoch in range(opt.max_epoch):
             # train
             model.train()
@@ -154,7 +198,7 @@ def main(**kwargs):
                     lr_scheduler.step()
                 accu_loss += loss.detach()
                 train_loader_bar.desc = (
-                    "[train epoch {}] loss: {:.3f}, acc: {:.3f}, lr: {:.5f}".format(
+                    "[train epoch {}] loss: {:.3f}, acc: {:.3f}, lr: {:.7f}".format(
                         epoch,
                         accu_loss.item() / (step + 1),
                         accu_num.item() / sample_num,
@@ -180,10 +224,10 @@ def main(**kwargs):
                         writer.add_image(
                             "Small-XHGNet/train", img_grid, global_step=train_iteration
                         )
-                    if train_iteration % 1000 == 0:
-                        writer.add_histogram(
-                            "fc", model.classifier.weight, global_step=train_iteration
-                        )
+                    #                    if train_iteration % 1000 == 0:
+                    #                        writer.add_histogram(
+                    #                            "fc", model.fc.weight, global_step=train_iteration
+                    #                        )
                     #                        writer.add_histogram(
                     #                            "conv5_3-SE_fc2",
                     #                            model.layer4[-1].alpha_attn_mode.fc2.weight,
@@ -260,27 +304,44 @@ def main(**kwargs):
                 val_accu_loss.item() / (val_step + 1),
                 epoch + 1,
             )
+
+            val_epoch_acc = val_accu_num.item() / val_sample_num
             writer.add_scalar(
                 accu_tags[3],
-                val_accu_num.item() / val_sample_num,
+                val_epoch_acc,
                 epoch + 1,
             )
-            writer.close()
 
-            if os.path.exists(f"./checkpoints/{model_idx}-{opt.time_stamp}") is False:
-                os.makedirs(f"./checkpoints/{model_idx}-{opt.time_stamp}")
-            if best_acc < val_acc:
-                t.save(
-                    model.state_dict(),
-                    f"./checkpoints/{model_idx}-{opt.time_stamp}/best_model.pth",
+            # create checkpoint dst
+            checkpoint_dst = f"./checkpoints/{dst_str}"
+            if os.path.exists(checkpoint_dst) is False:
+                os.makedirs(checkpoint_dst)
+
+            # save best model
+            if best_acc < val_epoch_acc:
+                t.save(model.state_dict(), f"{checkpoint_dst}/best_model.pth")
+                best_acc = val_epoch_acc
+                with open(f"{checkpoint_dst}/best_model_epoch.txt", "a+") as af:
+                    af.write(f"{epoch+1}: {best_acc}\n")
+
+            # save each model after 11-th epoch
+            if epoch >= 5:
+                t.save(model.state_dict(), f"{checkpoint_dst}/last_model-{epoch+1}.pth")
+
+            # earlystop
+            if opt.use_earlystop:
+                earlystop(
+                    val_loss=val_accu_loss.item() / (val_step + 1),
+                    val_acc=val_epoch_acc,
+                    model=model,
+                    current_epoch=epoch + 1,
+                    hyperparameter=dst_str,
                 )
-                best_acc = val_acc
-            if epoch >= (opt.max_epoch - 5):
-                t.save(
-                    model.state_dict(),
-                    f"./checkpoints/{model_idx}-{opt.time_stamp}/last_model-{epoch}.pth",
-                )
-        writer.flush()
+                if earlystop.early_stop:
+                    print(f"early stop at {epoch-6}...")
+                    break
+
+        writer.close()
 
 
 if __name__ == "__main__":

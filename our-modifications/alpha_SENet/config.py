@@ -1,43 +1,39 @@
 import time
 import warnings
 import torch as t
-from data_config.constants import SMALL_XHGNET_DEFAULT_MEAN, SMALL_XHGNET_DEFAULT_STD
+from data_config.constants import XHGNET_V4_MEAN, XHGNET_V4_STD
 
 
 class DefaultConfig(object):
 
-    train_data_root = "../../data/small-XHGNet/train/"
-    test_data_root = "../../data/small-XHGNet/val/"
-    data_mean = SMALL_XHGNET_DEFAULT_MEAN
-    data_std = SMALL_XHGNET_DEFAULT_STD
+    train_data_root = "../../data/XHGNetV4/train/"
+    test_data_root = "../../data/XHGNetV4/val/"
+    data_mean = XHGNET_V4_MEAN
+    data_std = XHGNET_V4_STD
+    val_rate = 0.2
 
     # commen config
     model = [
-        "densenet161",
-        # "resnext50_32x4d",
-        # "alpha_1_1_resnext50_32x4d",
-        # "alpha_2_0_resnext50_32x4d",
-        # "seresnext50_32x4d",
-        # "resnext101_32x4d",
-        # "alpha_1_1_resnext101_32x4d",
-        # "alpha_2_0_resnext101_32x4d",
-        # "seresnext101_32x4d",
-        # "resnext101_32x8d",
-        # "alpha_1_1_resnext101_32x8d",
-        # "alpha_2_0_resnext101_32x8d",
-        # "seresnext101_32x8d",
-        # "resnext101_64x4d",
-        # "alpha_1_1_resnext101_64x4d",
-        # "alpha_2_0_resnext101_64x4d",
-        # "seresnext101_64x4d",
+        # "sse_rd101_ada_resnet152dd",
+        # "sse_rd102_ada_resnet152dd",
+        # "sse_rd104_ada_resnet152dd",
+        # "sse_rd108_ada_resnet152dd",
+        # "sse_rd116_ada_resnet152dd",
+        # "sse_rd132_ada_resnet152dd",
+        # "mobilenetv3_large_075",
+        "mobilenetv3_large_100",
     ]  # 使用的模型，名字必须与models/__init__.py中的名字一致
+    pretrain = False
+    continue_training = False
+    use_earlystop = True
+    earlystop_patience = 12
 
     # 0 for "cpu", 1 for "single_gpu", 2 for "multi_gpu"
     gpu_mode = 1
     if gpu_mode == 0:
         device = t.device("cpu")
     elif gpu_mode == 1:
-        device = t.device("cuda:6")
+        device = t.device("cuda:2")
     else:
         # TODO: update DDP training script
         device = t.device("cuda")
@@ -53,35 +49,28 @@ class DefaultConfig(object):
     batch_size = base_bs * use_gpus if gpu_mode > 1 else base_bs
 
     num_workers = 8
-    num_classes = 34
+    num_classes = 11
     resolution = 224  # Different Resolution are: [128, 160, 224, 320, 384]
     time_stamp = time.strftime("%m_%d-%H_%M_%S")
 
     # train config
+    max_epoch = 100
+    optimizer = "AdamW"
     debug_mode = True
-    max_epoch = 80
-    learning_rate = (
-        1e-1 * batch_size / 256
-    )  # `bag-of-tricks`: warmup-to-MAX(0.1 * batch_size / 256), then COSINE-DECAY-TO-ZERO
-    weight_decay = 1e-4  # `ResNet-RS impl.`: DEFAULT=1e-4, decrease to 4e-5 when using more regularization
-    use_lr_scheduler = True
+
+    # for AdamW, const. LR
+    # 0.00004, 0.001, 0.0001, 0.0005
+    learning_rate = 0.0005  # `bag-of-tricks`: for SGD, warmup-to-MAX(0.1 * batch_size / 256), then COSINE-DECAY-TO-ZERO
+    weight_decay = 0  # `ResNet-RS impl.`: DEFAULT=1e-4, decrease to 4e-5 when using more regularization
+
+    use_lr_scheduler = False
     if use_lr_scheduler:
         warmup_epochs = 5
 
     # test config
     load_model_path = [
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/resnext101_32x4d-10_31-10_09_11/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_1_1_resnext101_32x4d-10_31-10_09_11/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_2_0_resnext101_32x4d-10_31-10_09_11/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/seresnext101_32x4d-10_31-10_09_11/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/resnext101_32x8d-10_31-10_13_06/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_1_1_resnext101_32x8d-10_31-10_13_06/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_2_0_resnext101_32x8d-10_31-10_13_06/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/seresnext101_32x8d-10_31-10_13_06/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/resnext101_64x4d-10_31-10_15_15/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_1_1_resnext101_64x4d-10_31-10_15_15/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/alpha_2_0_resnext101_64x4d-10_31-10_15_15/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/seresnext101_64x4d-10_31-10_15_15/best_model.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/11_28-00_15_21-mobilenetv3_large_075-LR_False_0.001-BS_32-WD_0/last_model-30-val_acc-0.8939-.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/11_28-00_15_21-mobilenetv3_large_100-LR_False_0.001-BS_32-WD_0/last_model-18-val_acc-0.8773-.pth",
     ]
 
     def _parse(self, kwargs):

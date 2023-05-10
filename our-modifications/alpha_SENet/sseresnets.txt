@@ -1,0 +1,6 @@
+sseresnet50: num_classes=11, Params: 23.70M, FLOPs: 4.13G
+sseresnet101: num_classes=11, Params: 42.83M, FLOPs: 7.86G
+sseresnet152: num_classes=11, Params: 58.60M, FLOPs: 11.60G
+sseresnet50: num_classes=11, Params: 26.23M, FLOPs: 4.13G
+sseresnet101: num_classes=11, Params: 47.49M, FLOPs: 7.87G
+sseresnet152: num_classes=11, Params: 65.13M, FLOPs: 11.61G

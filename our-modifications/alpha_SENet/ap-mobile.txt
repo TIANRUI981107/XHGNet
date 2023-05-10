@@ -1,0 +1,2 @@
+mobilenetv3_large_075: num_classes=11, Params: 2.67M, FLOPs: 153.31M
+mobilenetv3_large_100: num_classes=11, Params: 4.18M, FLOPs: 215.37M

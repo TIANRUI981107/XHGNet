@@ -1,0 +1,2 @@
+resnext101_32x4d: num_classes=11, Params: 42.15M, FLOPs: 8.05G
+convnext_base: num_classes=11, Params: 87.52M, FLOPs: 15.35G

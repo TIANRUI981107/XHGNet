@@ -661,16 +661,16 @@ class Bottleneck(nn.Module):
         x = self.conv2(x)
         x = self.bn2(x)
 
+        x = self.drop_block(x)
+        x = self.act2(x)
+        x = self.aa(x)
+
         if self.alpha_attn_chunks == 2:
             branch_1, branch_2 = x.chunk(self.alpha_attn_chunks, dim=1)
             branch_1 = self.alpha_attn_mode(branch_1)
             x = torch.concat((branch_1, branch_2), dim=1)
         elif self.alpha_attn_chunks == 1:
             x = self.alpha_attn_mode(x)
-
-        x = self.drop_block(x)
-        x = self.act2(x)
-        x = self.aa(x)
 
         x = self.conv3(x)
         x = self.bn3(x)
@@ -1379,6 +1379,24 @@ def resnext50_32x4d(pretrained=False, **kwargs):
 
 
 @register_model
+def resnext50_64x4d(pretrained=False, **kwargs):
+    """Constructs a ResNeXt50-64x4d model."""
+    model_args = dict(
+        block=Bottleneck, layers=[3, 4, 6, 3], cardinality=64, base_width=4, **kwargs
+    )
+    return _create_resnet("resnext50_64x4d", pretrained, **model_args)
+
+
+@register_model
+def resnext50_32x8d(pretrained=False, **kwargs):
+    """Constructs a ResNext50_32x8d model."""
+    model_args = dict(
+        block=Bottleneck, layers=[3, 4, 6, 3], cardinality=32, base_width=8, **kwargs
+    )
+    return _create_resnet("resnext50_32x8d", pretrained, **model_args)
+
+
+@register_model
 def alpha_1_1_resnext50_32x4d(pretrained=False, **kwargs):
     """Constructs an alpha_ResNeXt50-32x4d model."""
     model_args = dict(
@@ -1755,6 +1773,838 @@ def ecaresnet26t(pretrained=False, **kwargs):
 
 
 @register_model
+def seresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="se"),
+        **kwargs,
+    )
+    return _create_resnet("seresnet50", pretrained, **model_args)
+
+
+@register_model
+def eseresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="ese"),
+        **kwargs,
+    )
+    return _create_resnet("eseresnet50", pretrained, **model_args)
+
+
+@register_model
+def ecaresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="eca"),
+        **kwargs,
+    )
+    return _create_resnet("ecaresnet50", pretrained, **model_args)
+
+
+@register_model
+def ecamresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="ecam"),
+        **kwargs,
+    )
+    return _create_resnet("ecamresnet50", pretrained, **model_args)
+
+
+@register_model
+def cecaresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="ceca"),
+        **kwargs,
+    )
+    return _create_resnet("cecaresnet50", pretrained, **model_args)
+
+
+@register_model
+def geresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="ge"),
+        **kwargs,
+    )
+    return _create_resnet("geresnet50", pretrained, **model_args)
+
+
+@register_model
+def gcresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="gc"),
+        **kwargs,
+    )
+    return _create_resnet("gcresnet50", pretrained, **model_args)
+
+
+@register_model
+def gcaresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="gca"),
+        **kwargs,
+    )
+    return _create_resnet("gcaresnet50", pretrained, **model_args)
+
+
+@register_model
+def cbamresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="cbam"),
+        **kwargs,
+    )
+    return _create_resnet("cbamresnet50", pretrained, **model_args)
+
+
+@register_model
+def lcbamresnet50(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        block_args=dict(attn_layer="lcbam"),
+        **kwargs,
+    )
+    return _create_resnet("lcbamresnet50", pretrained, **model_args)
+
+
+# SSE-Net start
+@register_model
+def sse_rd101_g08_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_g08"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_g08_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_g16_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_g16"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_g16_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_g32_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_g32"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_g32_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_g64_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_g64"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_g64_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_ada_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_ada_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_g08_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd102_g08"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_g08_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_g16_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd102_g16"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_g16_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_g32_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd102_g32"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_g32_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_g64_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd102_g64"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_g64_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_ada_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd102_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_ada_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_g08_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd104_g08"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_g08_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_g16_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd104_g16"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_g16_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_g32_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd104_g32"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_g32_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_g64_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd104_g64"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_g64_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_ada_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd104_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_ada_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_g08_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd108_g08"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_g08_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_g16_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd108_g16"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_g16_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_g32_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd108_g32"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_g32_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_g64_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd108_g64"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_g64_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_ada_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd108_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_ada_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_g08_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd116_g08"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_g08_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_g16_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd116_g16"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_g16_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_g32_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd116_g32"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_g32_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_g64_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd116_g64"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_g64_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_ada_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd116_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_ada_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_g08_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd132_g08"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_g08_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_g16_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd132_g16"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_g16_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_g32_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd132_g32"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_g32_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_g64_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd132_g64"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_g64_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_ada_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd132_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_ada_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_g01_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_g01"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_g01_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_g01_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd102_g01"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_g01_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_g01_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd104_g01"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_g01_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_g01_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd108_g01"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_g01_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_g01_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd116_g01"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_g01_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_g01_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd132_g01"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_g01_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_nog_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_nog"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_nog_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_nog_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd102_nog"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_nog_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_nog_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd104_nog"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_nog_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_nog_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd108_nog"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_nog_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_nog_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd116_nog"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_nog_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_nog_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd132_nog"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_nog_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_nos_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_nos"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_nos_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_nos_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd102_nos"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_nos_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_nos_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd104_nos"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_nos_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_nos_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd108_nos"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_nos_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_nos_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd116_nos"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_nos_resnet50dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_nos_resnet50dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd132_nos"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_nos_resnet50dd", pretrained, **model_args)
+
+
+# others
+@register_model
 def ecaresnet50d(pretrained=False, **kwargs):
     """Constructs a ResNet-50-D model with eca."""
     model_args = dict(
@@ -1815,6 +2665,195 @@ def ecaresnetlight(pretrained=False, **kwargs):
         **kwargs,
     )
     return _create_resnet("ecaresnetlight", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_ada_resnet101dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd101_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_ada_resnet101dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_ada_resnet101dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd102_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_ada_resnet101dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_ada_resnet101dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd104_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_ada_resnet101dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_ada_resnet101dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd108_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_ada_resnet101dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_ada_resnet101dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd116_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_ada_resnet101dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_ada_resnet101dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd132_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_ada_resnet101dd", pretrained, **model_args)
+
+
+@register_model
+def ecaresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="eca"),
+        **kwargs,
+    )
+    return _create_resnet("ecaresnet101", pretrained, **model_args)
+
+
+@register_model
+def eseresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="ese"),
+        **kwargs,
+    )
+    return _create_resnet("eseresnet101", pretrained, **model_args)
+
+
+@register_model
+def ecamresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="ecam"),
+        **kwargs,
+    )
+    return _create_resnet("ecamresnet101", pretrained, **model_args)
+
+
+@register_model
+def cecaresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="ceca"),
+        **kwargs,
+    )
+    return _create_resnet("cecaresnet101", pretrained, **model_args)
+
+
+@register_model
+def geresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="ge"),
+        **kwargs,
+    )
+    return _create_resnet("geresnet101", pretrained, **model_args)
+
+
+@register_model
+def gcresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="gc"),
+        **kwargs,
+    )
+    return _create_resnet("gcresnet101", pretrained, **model_args)
+
+
+@register_model
+def gcaresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="gca"),
+        **kwargs,
+    )
+    return _create_resnet("gcaresnet101", pretrained, **model_args)
+
+
+@register_model
+def cbamresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="cbam"),
+        **kwargs,
+    )
+    return _create_resnet("cbamresnet101", pretrained, **model_args)
+
+
+@register_model
+def lcbamresnet101(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 23, 3],
+        block_args=dict(attn_layer="lcbam"),
+        **kwargs,
+    )
+    return _create_resnet("lcbamresnet101", pretrained, **model_args)
 
 
 @register_model
@@ -1942,17 +2981,6 @@ def seresnet34(pretrained=False, **kwargs):
 
 
 @register_model
-def seresnet50(pretrained=False, **kwargs):
-    model_args = dict(
-        block=Bottleneck,
-        layers=[3, 4, 6, 3],
-        block_args=dict(attn_layer="se"),
-        **kwargs,
-    )
-    return _create_resnet("seresnet50", pretrained, **model_args)
-
-
-@register_model
 def seresnet50t(pretrained=False, **kwargs):
     model_args = dict(
         block=Bottleneck,
@@ -1986,6 +3014,195 @@ def seresnet152(pretrained=False, **kwargs):
         **kwargs,
     )
     return _create_resnet("seresnet152", pretrained, **model_args)
+
+
+@register_model
+def sse_rd101_ada_resnet152dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd101_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_ada_resnet152dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd102_ada_resnet152dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd102_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd102_ada_resnet152dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd104_ada_resnet152dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd104_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd104_ada_resnet152dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd108_ada_resnet152dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd108_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd108_ada_resnet152dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd116_ada_resnet152dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd116_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd116_ada_resnet152dd", pretrained, **model_args)
+
+
+@register_model
+def sse_rd132_ada_resnet152dd(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.3,
+        block_args=dict(attn_layer="sse_rd132_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd132_ada_resnet152dd", pretrained, **model_args)
+
+
+@register_model
+def ecaresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="eca"),
+        **kwargs,
+    )
+    return _create_resnet("ecaresnet152", pretrained, **model_args)
+
+
+@register_model
+def eseresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="ese"),
+        **kwargs,
+    )
+    return _create_resnet("eseresnet152", pretrained, **model_args)
+
+
+@register_model
+def ecamresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="ecam"),
+        **kwargs,
+    )
+    return _create_resnet("ecamresnet152", pretrained, **model_args)
+
+
+@register_model
+def cecaresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="ceca"),
+        **kwargs,
+    )
+    return _create_resnet("cecaresnet152", pretrained, **model_args)
+
+
+@register_model
+def geresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="ge"),
+        **kwargs,
+    )
+    return _create_resnet("geresnet152", pretrained, **model_args)
+
+
+@register_model
+def gcresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="gc"),
+        **kwargs,
+    )
+    return _create_resnet("gcresnet152", pretrained, **model_args)
+
+
+@register_model
+def gcaresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="gca"),
+        **kwargs,
+    )
+    return _create_resnet("gcaresnet152", pretrained, **model_args)
+
+
+@register_model
+def cbamresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="cbam"),
+        **kwargs,
+    )
+    return _create_resnet("cbamresnet152", pretrained, **model_args)
+
+
+@register_model
+def lcbamresnet152(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 8, 36, 3],
+        block_args=dict(attn_layer="lcbam"),
+        **kwargs,
+    )
+    return _create_resnet("lcbamresnet152", pretrained, **model_args)
 
 
 @register_model
@@ -2092,6 +3309,123 @@ def seresnext50_32x4d(pretrained=False, **kwargs):
         **kwargs,
     )
     return _create_resnet("seresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def ecaresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="eca"),
+        **kwargs,
+    )
+    return _create_resnet("ecaresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def eseresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="ese"),
+        **kwargs,
+    )
+    return _create_resnet("eseresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def ecamresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="ecam"),
+        **kwargs,
+    )
+    return _create_resnet("ecamresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def cecaresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="ceca"),
+        **kwargs,
+    )
+    return _create_resnet("cecaresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def geresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="ge"),
+        **kwargs,
+    )
+    return _create_resnet("geresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def gcresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="gc"),
+        **kwargs,
+    )
+    return _create_resnet("gcresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def gcaresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="gca"),
+        **kwargs,
+    )
+    return _create_resnet("gcaresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def cbamresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="cbam"),
+        **kwargs,
+    )
+    return _create_resnet("cbamresnext50_32x4d", pretrained, **model_args)
+
+
+@register_model
+def lcbamresnext50_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        block_args=dict(attn_layer="lcbam"),
+        **kwargs,
+    )
+    return _create_resnet("lcbamresnext50_32x4d", pretrained, **model_args)
 
 
 @register_model

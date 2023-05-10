@@ -14,7 +14,13 @@ import pandas as pd
 from data_config.my_dataset import MyDataSet
 from utils.utils import read_split_data
 from config import opt
-import timm.models.resnet as models
+
+# import timm.models.resnet as models
+# import timm.models.densenet as models
+# import timm.models.efficientnet as models
+# import timm.models.regnet as models
+# import timm.models.convnext as models
+import timm.models.mobilenetv3 as models
 
 
 class ConfusionMatrix(object):
@@ -80,6 +86,7 @@ class ConfusionMatrix(object):
         matrix_df.to_csv(f"{dst}/confusion-matrix.csv", index=False)
 
         print(matrix)
+        fig_, ax_ = plt.subplots()
         plt.imshow(matrix, cmap=plt.cm.Blues)
 
         # 设置x轴坐标label
@@ -230,7 +237,7 @@ def test(**kwargs):
                 if pred.item() != test_labels.item():
 
                     destination = os.path.abspath(
-                        f"./hard_example_mining/{model_i}-{opt.time_stamp}"
+                        f"./hard_example_mining/{opt.time_stamp}-{model_i}-{model_load_path_i.split('/')[8]}"
                     )
                     if os.path.exists(destination) is False:
                         os.makedirs(destination)

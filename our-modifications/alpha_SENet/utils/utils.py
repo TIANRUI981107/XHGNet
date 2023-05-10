@@ -21,7 +21,7 @@ def read_split_data(root: str, val_rate: float = 0.4):
     ), f"val_rate must in interval [0, 1), got {val_rate} instead."
 
     # pseudo-random seed for reproductivity
-    random.seed(0)
+    random.seed(41)
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
 
     # ImageFolder format

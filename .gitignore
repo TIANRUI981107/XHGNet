@@ -5,6 +5,7 @@ OutWinterNet/
 XHGNet/
 U-XHGNet/
 /data
+heatmap/
 
 # Model Weights
 pretrained_weights/

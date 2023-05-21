@@ -5,7 +5,6 @@ from data_config.constants import XHGNET_V4_MEAN, XHGNET_V4_STD
 
 
 class DefaultConfig(object):
-
     train_data_root = "../../data/XHGNetV4/train/"
     test_data_root = "../../data/XHGNetV4/val/"
     data_mean = XHGNET_V4_MEAN
@@ -14,14 +13,17 @@ class DefaultConfig(object):
 
     # commen config
     model = [
-        # "sse_rd101_ada_resnet152dd",
+        "resnet50",
+        "ecamresnet50",
+        "cbamresnet50",
+        "sse_rd101_ada_resnet50dd",
         # "sse_rd102_ada_resnet152dd",
         # "sse_rd104_ada_resnet152dd",
         # "sse_rd108_ada_resnet152dd",
         # "sse_rd116_ada_resnet152dd",
         # "sse_rd132_ada_resnet152dd",
         # "mobilenetv3_large_075",
-        "mobilenetv3_large_100",
+        # "mobilenetv3_large_100",
     ]  # 使用的模型，名字必须与models/__init__.py中的名字一致
     pretrain = False
     continue_training = False
@@ -33,7 +35,7 @@ class DefaultConfig(object):
     if gpu_mode == 0:
         device = t.device("cpu")
     elif gpu_mode == 1:
-        device = t.device("cuda:2")
+        device = t.device("cuda:4")
     else:
         # TODO: update DDP training script
         device = t.device("cuda")
@@ -45,7 +47,7 @@ class DefaultConfig(object):
         dist_backend = None
         dist_url = "env://"
 
-    base_bs = 32
+    base_bs = 1
     batch_size = base_bs * use_gpus if gpu_mode > 1 else base_bs
 
     num_workers = 8
@@ -69,9 +71,15 @@ class DefaultConfig(object):
 
     # test config
     load_model_path = [
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/11_28-00_15_21-mobilenetv3_large_075-LR_False_0.001-BS_32-WD_0/last_model-30-val_acc-0.8939-.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/11_28-00_15_21-mobilenetv3_large_100-LR_False_0.001-BS_32-WD_0/last_model-18-val_acc-0.8773-.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/resnet50.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/ecamresnet50.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/cbamresnet50.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/sse_rd101_ada_resnet50dd.pth",
     ]
+
+    # inference config
+    # CAM, GradCAM, GradCAMpp, SmoothGradCAMpp, ScoreCAM, SSCAM, ISCAM, XGradCAM, LayerCAM
+    cam_method = "GradCAM"
 
     def _parse(self, kwargs):
         """
@@ -93,5 +101,4 @@ opt = DefaultConfig()
 
 
 if __name__ == "__main__":
-
     opt._parse(kwargs=None)

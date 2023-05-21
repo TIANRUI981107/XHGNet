@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from prettytable import PrettyTable
 import pandas as pd
 
+from torchcam.methods import SmoothGradCAMpp
 from data_config.my_dataset import MyDataSet
 from utils.utils import read_split_data
 from config import opt
@@ -221,7 +222,6 @@ def test(**kwargs):
             for test_images, test_labels, test_img_path, test_filename in tqdm(
                 test_loader
             ):
-
                 img_height, img_width = test_images.shape[-2:]
                 init_img = torch.zeros((1, 3, img_height, img_width), device=device)
                 model(init_img)
@@ -235,7 +235,6 @@ def test(**kwargs):
                 pred = torch.argmax(outputs, dim=1)
 
                 if pred.item() != test_labels.item():
-
                     destination = os.path.abspath(
                         f"./hard_example_mining/{opt.time_stamp}-{model_i}-{model_load_path_i.split('/')[8]}"
                     )
@@ -261,5 +260,4 @@ def test(**kwargs):
 
 
 if __name__ == "__main__":
-
     test()

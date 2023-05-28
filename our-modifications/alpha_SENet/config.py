@@ -13,10 +13,29 @@ class DefaultConfig(object):
 
     # commen config
     model = [
-        "resnet50",
-        "ecamresnet50",
-        "cbamresnet50",
-        "sse_rd101_ada_resnet50dd",
+        # "sse_rd101_ada_resnext50dd_32x4d",
+        # "sse_rd101_ada_resnext101_32x4d",
+        # "sse_rd101_ada_resnext101_32x8d",
+        # "sse_rd101_ada_resnext101_64x4d",
+        # "efficientnetv2_s",
+        # "efficientnetv2_m",
+        # "efficientnetv2_l",
+        # "convnext_tiny",
+        # "convnext_small",
+        # "convnext_base",
+        # "regnety_016",
+        # "regnety_032",
+        # "regnety_040",
+        # "regnety_064",
+        # "regnety_080",
+        # "regnety_120",
+        "convnext_tiny",
+        "convnext_small",
+        "convnext_base",
+        # "resnet50",
+        # "ecamresnet50",
+        # "cbamresnet50",
+        # "sse_rd101_ada_resnet50dd",
         # "sse_rd102_ada_resnet152dd",
         # "sse_rd104_ada_resnet152dd",
         # "sse_rd108_ada_resnet152dd",
@@ -50,7 +69,7 @@ class DefaultConfig(object):
     base_bs = 1
     batch_size = base_bs * use_gpus if gpu_mode > 1 else base_bs
 
-    num_workers = 8
+    num_workers = 0
     num_classes = 11
     resolution = 224  # Different Resolution are: [128, 160, 224, 320, 384]
     time_stamp = time.strftime("%m_%d-%H_%M_%S")
@@ -63,7 +82,7 @@ class DefaultConfig(object):
     # for AdamW, const. LR
     # 0.00004, 0.001, 0.0001, 0.0005
     learning_rate = 0.0005  # `bag-of-tricks`: for SGD, warmup-to-MAX(0.1 * batch_size / 256), then COSINE-DECAY-TO-ZERO
-    weight_decay = 0  # `ResNet-RS impl.`: DEFAULT=1e-4, decrease to 4e-5 when using more regularization
+    weight_decay = 1e-5  # `ResNet-RS impl.`: DEFAULT=1e-4, decrease to 4e-5 when using more regularization
 
     use_lr_scheduler = False
     if use_lr_scheduler:
@@ -71,15 +90,26 @@ class DefaultConfig(object):
 
     # test config
     load_model_path = [
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/resnet50.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/ecamresnet50.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/cbamresnet50.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/sse_rd101_ada_resnet50dd.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-22_06_55-sse_rd101_ada_resnext50dd_32x4d-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-22_20_30-sse_rd101_ada_resnext101_32x4d-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-22_24_16-sse_rd101_ada_resnext101_32x8d-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-22_27_37-sse_rd101_ada_resnext101_64x4d-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-23_09_16-efficientnetv2_s-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-23_12_31-efficientnetv2_m-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-23_16_56-efficientnetv2_l-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-23_15_12-no-atten_efficientnetv2_l-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/resnet50.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/ecamresnet50.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/cbamresnet50.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/sse_rd101_ada_resnet50dd.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_tiny-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_small-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_base-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
     ]
 
     # inference config
     # CAM, GradCAM, GradCAMpp, SmoothGradCAMpp, ScoreCAM, SSCAM, ISCAM, XGradCAM, LayerCAM
-    cam_method = "GradCAM"
+    cam_method = "GradCAMpp"
 
     def _parse(self, kwargs):
         """

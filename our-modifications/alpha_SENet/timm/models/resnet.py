@@ -1379,6 +1379,23 @@ def resnext50_32x4d(pretrained=False, **kwargs):
 
 
 @register_model
+def sse_rd101_ada_resnext50dd_32x4d(pretrained=False, **kwargs):
+    model_args = dict(
+        block=Bottleneck,
+        layers=[3, 4, 6, 3],
+        cardinality=32,
+        base_width=4,
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.1,
+        block_args=dict(attn_layer="sse_rd101_ada"),
+        **kwargs,
+    )
+    return _create_resnet("sse_rd101_ada_resnext50dd_32x4d", pretrained, **model_args)
+
+
+@register_model
 def resnext50_64x4d(pretrained=False, **kwargs):
     """Constructs a ResNeXt50-64x4d model."""
     model_args = dict(
@@ -1450,31 +1467,20 @@ def resnext101_32x4d(pretrained=False, **kwargs):
 
 
 @register_model
-def alpha_1_1_resnext101_32x4d(pretrained=False, **kwargs):
-    """Constructs a ResNeXt-101 32x4d model."""
+def sse_rd101_ada_resnext101_32x4d(pretrained=False, **kwargs):
     model_args = dict(
         block=Bottleneck,
         layers=[3, 4, 23, 3],
         cardinality=32,
         base_width=4,
-        alpha_attn_chunks=2,
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.2,
+        block_args=dict(attn_layer="sse_rd101_ada"),
         **kwargs,
     )
-    return _create_resnet("resnext101_32x4d", pretrained, **model_args)
-
-
-@register_model
-def alpha_2_0_resnext101_32x4d(pretrained=False, **kwargs):
-    """Constructs a ResNeXt-101 32x4d model."""
-    model_args = dict(
-        block=Bottleneck,
-        layers=[3, 4, 23, 3],
-        cardinality=32,
-        base_width=4,
-        alpha_attn_chunks=1,
-        **kwargs,
-    )
-    return _create_resnet("resnext101_32x4d", pretrained, **model_args)
+    return _create_resnet("sse_rd101_ada_resnext101_32x4d", pretrained, **model_args)
 
 
 @register_model
@@ -1487,31 +1493,20 @@ def resnext101_32x8d(pretrained=False, **kwargs):
 
 
 @register_model
-def alpha_1_1_resnext101_32x8d(pretrained=False, **kwargs):
-    """Constructs a ResNeXt-101 32x8d model."""
+def sse_rd101_ada_resnext101_32x8d(pretrained=False, **kwargs):
     model_args = dict(
         block=Bottleneck,
         layers=[3, 4, 23, 3],
         cardinality=32,
         base_width=8,
-        alpha_attn_chunks=2,
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.2,
+        block_args=dict(attn_layer="sse_rd101_ada"),
         **kwargs,
     )
-    return _create_resnet("resnext101_32x8d", pretrained, **model_args)
-
-
-@register_model
-def alpha_2_0_resnext101_32x8d(pretrained=False, **kwargs):
-    """Constructs a ResNeXt-101 32x8d model."""
-    model_args = dict(
-        block=Bottleneck,
-        layers=[3, 4, 23, 3],
-        cardinality=32,
-        base_width=8,
-        alpha_attn_chunks=1,
-        **kwargs,
-    )
-    return _create_resnet("resnext101_32x8d", pretrained, **model_args)
+    return _create_resnet("sse_rd101_ada_resnext101_32x8d", pretrained, **model_args)
 
 
 @register_model
@@ -1524,31 +1519,20 @@ def resnext101_64x4d(pretrained=False, **kwargs):
 
 
 @register_model
-def alpha_1_1_resnext101_64x4d(pretrained=False, **kwargs):
-    """Constructs a ResNeXt101-64x4d model."""
+def sse_rd101_ada_resnext101_64x4d(pretrained=False, **kwargs):
     model_args = dict(
         block=Bottleneck,
         layers=[3, 4, 23, 3],
         cardinality=64,
         base_width=4,
-        alpha_attn_chunks=2,
+        stem_width=32,
+        stem_type="deep",
+        avg_down=True,
+        drop_path_rate=0.2,
+        block_args=dict(attn_layer="sse_rd101_ada"),
         **kwargs,
     )
-    return _create_resnet("resnext101_64x4d", pretrained, **model_args)
-
-
-@register_model
-def alpha_2_0_resnext101_64x4d(pretrained=False, **kwargs):
-    """Constructs a ResNeXt101-64x4d model."""
-    model_args = dict(
-        block=Bottleneck,
-        layers=[3, 4, 23, 3],
-        cardinality=64,
-        base_width=4,
-        alpha_attn_chunks=1,
-        **kwargs,
-    )
-    return _create_resnet("resnext101_64x4d", pretrained, **model_args)
+    return _create_resnet("sse_rd101_ada_resnext101_64x4d", pretrained, **model_args)
 
 
 @register_model

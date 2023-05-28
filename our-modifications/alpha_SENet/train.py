@@ -21,16 +21,16 @@ from config import opt
 # import timm.models.resnet as models
 # import timm.models.densenet as models
 # import timm.models.efficientnet as models
-# import timm.models.regnet as models
+import timm.models.regnet as models
+
 # import timm.models.convnext as models
-import timm.models.mobilenetv3 as models
+# import timm.models.mobilenetv3 as models
 
 
 def main(**kwargs):
     opt._parse(kwargs)
 
     for idx, model_idx in enumerate(opt.model):
-
         # showing running model
         print(f"RUNNING: {model_idx}")
         print(f"USE_GPUS: {opt.gpu_mode}")
@@ -345,5 +345,4 @@ def main(**kwargs):
 
 
 if __name__ == "__main__":
-
     main()

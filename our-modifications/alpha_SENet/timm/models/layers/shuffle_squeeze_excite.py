@@ -34,9 +34,9 @@ class ShuffleSEModule(nn.Module):
     def __init__(
         self,
         channels,
-        rd_channels=True,
+        rd_channels=False,
         rd_ratio=1.0 / 16,  # reduce ratio: # 1/1; 1/2; 1/4; 1/8; 1/16; 1/32
-        groups=None,  # groups {08, 16, 32, 64, None}
+        groups=8,  # groups {08, 16, 32, 64, None}
         use_channel_shuffle=True,
         alpha=4,
         rd_divisor=8,

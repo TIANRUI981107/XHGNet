@@ -4,6 +4,7 @@ import os
 import torch
 from torchvision.io.image import read_image
 from torchvision import transforms
+from torch.nn.functional import softmax
 from torchvision.transforms.functional import to_pil_image
 from torchcam import methods
 from torchcam.utils import overlay_mask
@@ -108,8 +109,11 @@ def inference(**kwargs):
             # t1 = time_synchronized()
             out = model(test_images.to(device))
 
-            argmax_act = out.squeeze(0).argmax().item()
-            cls_act = test_labels.item()
+            argmax_act = out.squeeze(0).argmax().item()  # argmax
+            cls_act = test_labels.item()  # true label
+            softmax_max = (
+                softmax(out, dim=1).squeeze(0)[cls_act].item()
+            )  # true label's softmax
 
             # t2 = time_synchronized()
             activation_map = cam_extractor(cls_act, out)
@@ -136,36 +140,51 @@ def inference(**kwargs):
             dst_mis = os.path.abspath(f"./heatmap/{cam_method}-{opt.time_stamp}/mis")
             if os.path.exists(dst_mis) is False:
                 os.makedirs(dst_mis)
-            dst_ours = os.path.abspath(f"./heatmap/{cam_method}-{opt.time_stamp}/ours")
-            if os.path.exists(dst_ours) is False:
-                os.makedirs(dst_ours)
-            filename = f"{test_filename[0].split('.')[0]}-{model_i}-T_{class_indict[str(cls_act)]}-P_{class_indict[str(argmax_act)]}.png"
+            dst_all = os.path.abspath(f"./heatmap/{cam_method}-{opt.time_stamp}/all")
+            if os.path.exists(dst_all) is False:
+                os.makedirs(dst_all)
+            dst_crop = os.path.abspath(f"./heatmap/{cam_method}-{opt.time_stamp}/crop")
+            if os.path.exists(dst_crop) is False:
+                os.makedirs(dst_crop)
+            filename = f"{test_filename[0].split('.')[0]}-{model_i}-softmax_{softmax_max:.5f}-T_{class_indict[str(cls_act)]}-P_{class_indict[str(argmax_act)]}.png"
 
             # t4 = time_synchronized()
-            # only saved misclassified, except for ours
-            if model_i == "sse_rd101_ada_resnet50dd":
+            # save missclassified images
+            if argmax_act != cls_act:
+                plt.imshow(result)
+                plt.axis("off")
+                plt.tight_layout()
+                # plt.show()
+                plt.savefig(
+                    os.path.join(dst_mis, filename),
+                    dpi=600,
+                    bbox_inches="tight",
+                )
+                plt.clf()
+            # save all images
+            plt.imshow(result)
+            plt.axis("off")
+            plt.tight_layout()
+            # plt.show()
+            plt.savefig(
+                os.path.join(dst_all, filename),
+                dpi=600,
+                bbox_inches="tight",
+            )
+            plt.clf()
+            # save crop ori images
+            if model_i == "resnet50":
                 plt.imshow(crop_mask)
                 plt.axis("off")
                 plt.tight_layout()
                 # plt.show()
                 plt.savefig(
-                    os.path.join(dst_ours, filename),
+                    os.path.join(dst_crop, filename),
                     dpi=600,
                     bbox_inches="tight",
                 )
                 plt.clf()
-            else:
-                if argmax_act != cls_act:
-                    plt.imshow(crop_mask)
-                    plt.axis("off")
-                    plt.tight_layout()
-                    # plt.show()
-                    plt.savefig(
-                        os.path.join(dst_mis, filename),
-                        dpi=600,
-                        bbox_inches="tight",
-                    )
-                    plt.clf()
+
             # t5 = time_synchronized()
 
             # print(f"model: {t2-t1}\nact: {t3-t2}\noverlay: {t4-t3}\nsave_act: {t5-t4}")

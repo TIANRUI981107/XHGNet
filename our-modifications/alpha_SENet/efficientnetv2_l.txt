@@ -1,0 +1,1 @@
+efficientnetv2_l: num_classes=11, Params: 116.74M, FLOPs: 12.23G

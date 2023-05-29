@@ -19,9 +19,9 @@ from config import opt
 # import timm.models.resnet as models
 # import timm.models.densenet as models
 # import timm.models.efficientnet as models
-# import timm.models.regnet as models
-import timm.models.convnext as models
+import timm.models.regnet as models
 
+# import timm.models.convnext as models
 # import timm.models.mobilenetv3 as models
 
 

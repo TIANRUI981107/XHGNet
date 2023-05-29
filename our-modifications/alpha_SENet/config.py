@@ -23,12 +23,12 @@ class DefaultConfig(object):
         # "convnext_tiny",
         # "convnext_small",
         # "convnext_base",
-        "regnety_016",
-        "regnety_032",
-        "regnety_040",
-        "regnety_064",
-        "regnety_080",
-        "regnety_120",
+        # "regnety_016",
+        # "regnety_032",
+        # "regnety_040",
+        # "regnety_064",
+        # "regnety_080",
+        # "regnety_120",
         # "convnext_tiny",
         # "convnext_small",
         # "convnext_base",
@@ -42,7 +42,7 @@ class DefaultConfig(object):
         # "sse_rd116_ada_resnet152dd",
         # "sse_rd132_ada_resnet152dd",
         # "mobilenetv3_large_075",
-        # "mobilenetv3_large_100",
+        "mobilenetv3_large_100",
     ]  # 使用的模型，名字必须与models/__init__.py中的名字一致
     pretrain = False
     continue_training = False
@@ -66,10 +66,10 @@ class DefaultConfig(object):
         dist_backend = None
         dist_url = "env://"
 
-    base_bs = 1
+    base_bs = 32
     batch_size = base_bs * use_gpus if gpu_mode > 1 else base_bs
 
-    num_workers = 0
+    num_workers = 8
     num_classes = 11
     resolution = 224  # Different Resolution are: [128, 160, 224, 320, 384]
     time_stamp = time.strftime("%m_%d-%H_%M_%S")
@@ -105,12 +105,12 @@ class DefaultConfig(object):
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_tiny-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_small-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_base-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_016-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_032-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_040-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_064-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_080-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
-        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_120-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_016-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_032-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_040-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_064-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_080-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_120-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
     ]
 
     # inference config

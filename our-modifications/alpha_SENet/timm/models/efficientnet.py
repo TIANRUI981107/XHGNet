@@ -801,8 +801,8 @@ class EfficientNet(nn.Module):
         act_layer = act_layer or nn.ReLU
         norm_layer = norm_layer or nn.BatchNorm2d
         norm_act_layer = get_norm_act_layer(norm_layer, act_layer)
-        se_layer = se_layer or SqueezeExcite  # comented at 05/27
-        # se_layer = ShuffleSEModule  # comented at 05/27
+        # se_layer = se_layer or SqueezeExcite  # comented at 05/27
+        se_layer = ShuffleSEModule  # comented at 05/27
         self.num_classes = num_classes
         self.num_features = num_features
         self.drop_rate = drop_rate
@@ -921,8 +921,8 @@ class EfficientNetFeatures(nn.Module):
         act_layer = act_layer or nn.ReLU
         norm_layer = norm_layer or nn.BatchNorm2d
         norm_act_layer = get_norm_act_layer(norm_layer, act_layer)
-        se_layer = se_layer or SqueezeExcite  # comented at 05/27
-        # se_layer = ShuffleSEModule  # comented at 05/27
+        # se_layer = se_layer or SqueezeExcite  # comented at 05/27
+        se_layer = ShuffleSEModule  # comented at 05/27
         self.drop_rate = drop_rate
 
         # Stem

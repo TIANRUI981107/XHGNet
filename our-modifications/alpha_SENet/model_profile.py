@@ -3,6 +3,27 @@ from thop import profile, clever_format
 import torch
 
 from timm.models.resnet import (
+    sse_rd101_ada_resnext50dd_32x4d,
+    sse_rd101_ada_resnext101_32x4d,
+    sse_rd101_ada_resnext101_32x8d,
+    sse_rd101_ada_resnext101_64x4d,
+)
+from timm.models.regnet import (
+    regnety_016,
+    regnety_032,
+    regnety_040,
+    regnety_064,
+    regnety_080,
+    regnety_120,
+)
+from timm.models.efficientnet import (
+    efficientnetv2_s,
+    efficientnetv2_m,
+    efficientnetv2_l,
+)
+from timm.models.convnext import convnext_tiny, convnext_small, convnext_base
+
+from timm.models.resnet import (
     resnet50,
     resnet101,
     resnet152,
@@ -12,15 +33,6 @@ from timm.models.resnet import (
     resnext101_64x4d,
 )
 from timm.models.densenet import densenet121, densenet161, densenet169, densenet201
-from timm.models.efficientnet import efficientnetv2_s, efficientnetv2_m
-from timm.models.regnet import (
-    regnety_016,
-    regnety_032,
-    regnety_040,
-    regnety_064,
-    regnety_080,
-    regnety_120,
-)
 from timm.models.regnet import (
     regnetx_016,
     regnetx_032,
@@ -29,7 +41,6 @@ from timm.models.regnet import (
     regnetx_080,
     regnetx_120,
 )
-from timm.models.convnext import convnext_tiny, convnext_small, convnext_base
 from timm.models.mobilenetv3 import mobilenetv3_large_075, mobilenetv3_large_100
 from timm.models.resnet import (
     seresnet50,
@@ -81,6 +92,7 @@ def create_torch_model(model_name: str, num_classes: int = 11):
         "densenet201": densenet201(num_classes=num_classes, pretrained=False),
         "efficientnetv2_s": efficientnetv2_s(num_classes=num_classes, pretrained=False),
         "efficientnetv2_m": efficientnetv2_m(num_classes=num_classes, pretrained=False),
+        "efficientnetv2_l": efficientnetv2_l(num_classes=num_classes, pretrained=False),
         "regnety_016": regnety_016(num_classes=num_classes, pretrained=False),
         "regnety_032": regnety_032(num_classes=num_classes, pretrained=False),
         "regnety_040": regnety_040(num_classes=num_classes, pretrained=False),
@@ -138,13 +150,24 @@ def create_torch_model(model_name: str, num_classes: int = 11):
         "sse_rd116_ada_resnet152dd": sse_rd116_ada_resnet152dd(
             num_classes=num_classes, pretrained=False
         ),
+        "sse_rd101_ada_resnext50dd_32x4d": sse_rd101_ada_resnext50dd_32x4d(
+            num_classes=num_classes, pretrained=False
+        ),
+        "sse_rd101_ada_resnext101_32x4d": sse_rd101_ada_resnext101_32x4d(
+            num_classes=num_classes, pretrained=False
+        ),
+        "sse_rd101_ada_resnext101_32x8d": sse_rd101_ada_resnext101_32x8d(
+            num_classes=num_classes, pretrained=False
+        ),
+        "sse_rd101_ada_resnext101_64x4d": sse_rd101_ada_resnext101_64x4d(
+            num_classes=num_classes, pretrained=False
+        ),
     }
     net = model_dic[model_name]
     return model_name, net
 
 
 if __name__ == "__main__":
-
     # config
 
     # device = torch.device('cpu')
@@ -201,8 +224,29 @@ if __name__ == "__main__":
 
     ablation = ["sse_rd116_ada_resnet101dd", "sse_rd116_ada_resnet152dd"]
 
+    attn_to_resnet_family = [
+        "sse_rd101_ada_resnext50dd_32x4d",
+        "sse_rd101_ada_resnext101_32x4d",
+        "sse_rd101_ada_resnext101_32x8d",
+        "sse_rd101_ada_resnext101_64x4d",
+        "regnetx_016",
+        "regnetx_032",
+        "regnetx_040",
+        "regnetx_064",
+        "regnetx_080",
+        "regnetx_120",
+        "efficientnetv2_s",
+        "efficientnetv2_m",
+        "efficientnetv2_l",
+        "convnext_tiny",
+        "convnext_small",
+        "convnext_base",
+        "mobilenetv3_large_075",
+        "mobilenetv3_large_100",
+    ]
+
     # torchhub models
-    for _ in model_zoo:
+    for _ in attn_to_resnet_family:
         m, model = create_torch_model(model_name=_)
         # print(model)
 
@@ -212,7 +256,7 @@ if __name__ == "__main__":
         flops, params = clever_format([flops, params], "%.2f")
         msg = f"{m}: num_classes={num_classes}, Params: {params}, FLOPs: {flops}"
         print(msg)
-        with open("ap-mobile.txt", "a+") as af:
+        with open("attn_to_resnet_family.txt", "a+") as af:
             af.write(f"{msg}\n")
 
     # our imple. models

@@ -89,9 +89,8 @@ def image_metadata(p_list, mark="train-val"):
 
 
 if __name__ == "__main__":
-
-    dataset_name = "mini-XHGNet"
-    dataset_type = "train-val"
+    dataset_name = "ONLINE"
+    dataset_type = "train"
     root = f"../data/{dataset_name}/{dataset_type}"
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
     f_path = get_img_path_ls(root)

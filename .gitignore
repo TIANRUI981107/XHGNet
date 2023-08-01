@@ -6,6 +6,7 @@ XHGNet/
 U-XHGNet/
 /data
 heatmap/
+probability/
 
 # Model Weights
 pretrained_weights/

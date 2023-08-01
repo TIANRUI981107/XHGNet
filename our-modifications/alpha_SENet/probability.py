@@ -99,95 +99,19 @@ def inference(**kwargs):
             torch.load(model_weight_path, map_location=device), strict=True
         )
         model.to(device)
-        cam_extractor = getattr(methods, cam_method)(model)
 
         model.eval()
-
-        # with methods.__dict__[cam_method](model) as cam_extractor:
-        # with getattr(methods, cam_method)(model) as cam_extractor:
         for test_images, test_labels, test_img_path, test_filename in tqdm(test_loader):
-            # t1 = time_synchronized()
             out = model(test_images.to(device))
 
-            argmax_act = out.squeeze(0).argmax().item()  # argmax
-            cls_act = test_labels.item()  # true label
-            softmax_max = (
-                softmax(out, dim=1).squeeze(0)[cls_act].item()
-            )  # true label's softmax
-
-            # t2 = time_synchronized()
-            activation_map = cam_extractor(cls_act, out)
-            zero_act_map = torch.zeros(
-                activation_map[0].squeeze(0).size()
-            )  # zero mask with same size of act map
-
-            # Resize the CAM and overlay it
-            # t3 = time_synchronized()
-            img_tensor = read_image(test_img_path[0])
-            crop_from_center = transforms.CenterCrop(2048 / 256 * opt.resolution)
-            result = overlay_mask(
-                to_pil_image(crop_from_center(img_tensor)),
-                to_pil_image(activation_map[0].squeeze(0), mode="F"),
-                alpha=0.5,
-            )
-            crop_mask = overlay_mask(
-                to_pil_image(crop_from_center(img_tensor)),
-                to_pil_image(zero_act_map),
-                alpha=0.999,
-            )
+            softmax_prob = softmax(out, dim=1).squeeze(0).tolist()  # softmax probablity
+            softmax_prob.append(test_filename[0])
+            softmax_prob.append(test_labels.item())
 
             # heatmap dir
-            dst_mis = os.path.abspath(f"./heatmap/{cam_method}-{opt.time_stamp}/mis")
-            if os.path.exists(dst_mis) is False:
-                os.makedirs(dst_mis)
-            dst_all = os.path.abspath(f"./heatmap/{cam_method}-{opt.time_stamp}/all")
-            if os.path.exists(dst_all) is False:
-                os.makedirs(dst_all)
-            dst_crop = os.path.abspath(f"./heatmap/{cam_method}-{opt.time_stamp}/crop")
-            if os.path.exists(dst_crop) is False:
-                os.makedirs(dst_crop)
-            filename = f"{test_filename[0].split('.')[0]}-{model_i}-softmax_{softmax_max:.5f}-T_{class_indict[str(cls_act)]}-P_{class_indict[str(argmax_act)]}.png"
-
-            # t4 = time_synchronized()
-            # save missclassified images
-            if argmax_act != cls_act:
-                plt.imshow(result)
-                plt.axis("off")
-                plt.tight_layout()
-                # plt.show()
-                plt.savefig(
-                    os.path.join(dst_mis, filename),
-                    dpi=600,
-                    bbox_inches="tight",
-                )
-                plt.clf()
-            # save all images
-            plt.imshow(result)
-            plt.axis("off")
-            plt.tight_layout()
-            # plt.show()
-            plt.savefig(
-                os.path.join(dst_all, filename),
-                dpi=600,
-                bbox_inches="tight",
-            )
-            plt.clf()
-            # save crop ori images
-            if model_i == "resnet50":
-                plt.imshow(crop_mask)
-                plt.axis("off")
-                plt.tight_layout()
-                # plt.show()
-                plt.savefig(
-                    os.path.join(dst_crop, filename),
-                    dpi=600,
-                    bbox_inches="tight",
-                )
-                plt.clf()
-
-            # t5 = time_synchronized()
-
-            # print(f"model: {t2-t1}\nact: {t3-t2}\noverlay: {t4-t3}\nsave_act: {t5-t4}")
+            filename = f"{model_i}-{opt.time_stamp}.txt"
+            with open(filename, "a+") as af:
+                af.write(f"{softmax_prob}\n")
 
 
 if __name__ == "__main__":

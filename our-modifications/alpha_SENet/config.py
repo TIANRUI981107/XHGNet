@@ -1,7 +1,12 @@
 import time
 import warnings
 import torch as t
-from data_config.constants import XHGNET_V4_MEAN, XHGNET_V4_STD
+from data_config.constants import (
+    XHGNET_V4_MEAN,
+    XHGNET_V4_STD,
+    ONLINE_DEFAULT_MEAN,
+    ONLINE_DEFAULT_STD,
+)
 
 
 class DefaultConfig(object):
@@ -9,6 +14,10 @@ class DefaultConfig(object):
     test_data_root = "../../data/XHGNetV4/val/"
     data_mean = XHGNET_V4_MEAN
     data_std = XHGNET_V4_STD
+    # train_data_root = "../../data/ONLINE/train/"
+    # test_data_root = "../../data/ONLINE/val/"
+    # data_mean = ONLINE_DEFAULT_MEAN
+    # data_std = ONLINE_DEFAULT_STD
     val_rate = 0.2
 
     # commen config
@@ -33,8 +42,8 @@ class DefaultConfig(object):
         # "convnext_small",
         # "convnext_base",
         # "resnet50",
-        # "ecamresnet50",
-        # "cbamresnet50",
+        "ecamresnet50",
+        "cbamresnet50",
         # "sse_rd101_ada_resnet50dd",
         # "sse_rd102_ada_resnet152dd",
         # "sse_rd104_ada_resnet152dd",
@@ -42,19 +51,19 @@ class DefaultConfig(object):
         # "sse_rd116_ada_resnet152dd",
         # "sse_rd132_ada_resnet152dd",
         # "mobilenetv3_large_075",
-        "mobilenetv3_large_100",
+        # "mobilenetv3_large_100",
     ]  # 使用的模型，名字必须与models/__init__.py中的名字一致
     pretrain = False
     continue_training = False
     use_earlystop = True
-    earlystop_patience = 12
+    earlystop_patience = 14
 
     # 0 for "cpu", 1 for "single_gpu", 2 for "multi_gpu"
     gpu_mode = 1
     if gpu_mode == 0:
         device = t.device("cpu")
     elif gpu_mode == 1:
-        device = t.device("cuda:4")
+        device = t.device("cuda:2")
     else:
         # TODO: update DDP training script
         device = t.device("cuda")
@@ -66,7 +75,7 @@ class DefaultConfig(object):
         dist_backend = None
         dist_url = "env://"
 
-    base_bs = 32
+    base_bs = 1
     batch_size = base_bs * use_gpus if gpu_mode > 1 else base_bs
 
     num_workers = 8
@@ -90,6 +99,18 @@ class DefaultConfig(object):
 
     # test config
     load_model_path = [
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/07_30-11_15_17-resnet50-LR_False_0.0005-BS_32-WD_1e-05-online-no_transfer/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/07_30-11_24_18-ecamresnet50-LR_False_0.0005-BS_32-WD_1e-05-online-no_transfer/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/07_30-11_43_04-cbamresnet50-LR_False_0.0005-BS_32-WD_1e-05-online-no_transfer/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/07_30-14_07_13-sse_rd101_ada_resnet50dd-LR_False_0.0005-BS_32-WD_1e-05-online-no_transfer/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/07_30-11_20_10-resnet50-LR_False_0.0005-BS_32-WD_1e-05-online-transfer/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/07_30-11_34_56-ecamresnet50-LR_False_0.0005-BS_32-WD_1e-05-online-transfer/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/07_30-11_43_54-cbamresnet50-LR_False_0.0005-BS_32-WD_1e-05-online-transfer/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/07_30-14_07_46-sse_rd101_ada_resnet50dd-LR_False_0.0005-BS_32-WD_1e-05-online-transfer/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/resnet50.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/ecamresnet50.pth",
+        "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/cbamresnet50.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/sse_rd101_ada_resnet50dd.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-22_06_55-sse_rd101_ada_resnext50dd_32x4d-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-22_20_30-sse_rd101_ada_resnext101_32x4d-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-22_24_16-sse_rd101_ada_resnext101_32x8d-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
@@ -98,10 +119,6 @@ class DefaultConfig(object):
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-23_12_31-efficientnetv2_m-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-23_16_56-efficientnetv2_l-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-23_15_12-no-atten_efficientnetv2_l-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/resnet50.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/ecamresnet50.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/cbamresnet50.pth",
-        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/qualitative_analysis_checkpoints/sse_rd101_ada_resnet50dd.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_tiny-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_small-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-00_08_30-convnext_base-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
@@ -111,6 +128,8 @@ class DefaultConfig(object):
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_064-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_080-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
         # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_28-08_28_33-regnety_120-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth",
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_29-11_37_40-mobilenetv3_large_100-LR_False_0.0005-BS_32-WD_1e-05/best_model.pth"
+        # "/home/tr/myproject/XHGNet/our-modifications/alpha_SENet/checkpoints/05_27-23_15_12-no-atten_efficientnetv2_l-LR_False_0.0005-BS_32-WD_1e-05/last_model-20-val_acc-0.8436-.pth"
     ]
 
     # inference config
